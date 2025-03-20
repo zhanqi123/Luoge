@@ -6,7 +6,7 @@
       src="@/assets/images/login_img/ope.png"
       class="bg-img"
       alt="qiyetupian"
-    
+      v-temp-img="bgImg"
     />
     <!-- platform -->
     <img
@@ -14,7 +14,7 @@
       src="@/assets/images/login_img/apli.png"
       class="bg-img"
       alt="qiyetupian"
-     
+      v-temp-img="bgImg"
     />
     <el-form
       ref="loginForm"
@@ -28,9 +28,30 @@
         <div class="title-greet">欢迎登录~</div>
         <div class="title">{{ title }}</div>
       </div>
-   
+      <!-- <el-form-item v-if="!isAdmin" prop="orgId">
+        <div style="display: flex; border-bottom: solid 1px #a0a3aa !important">
+          <ty-icon
+            slot="prefix"
+            type="structure"
+            :size="30"
+            class="login-org"
+          ></ty-icon>
+          <el-select
+            v-model="loginForm.orgId"
+            placeholder="请选择组织"
+            filterable
+            style="width: 82%"
+          >
+            <el-option
+              v-for="item in orgOptions"
+              :key="item.id"
+              :value="item.id"
+              :label="item.orgName"
+            ></el-option>
+          </el-select>
+        </div>
+      </el-form-item> -->
       <el-form-item prop="username" class="form-input">
-        
         <el-input
           ref="username"
           v-model="loginForm.username"
@@ -42,10 +63,8 @@
           placeholder-style="color: #C3C3C3"
           @keyup.enter.native="handleLogin"
         >
-      
-        <svg-icon slot="prefix" icon-class="user" class="el-input__icon input-icon" />
+          <ty-icon slot="prefix" type="username" class="login-user" />
         </el-input>
-      
       </el-form-item>
       <el-form-item prop="password" class="form-input">
         <el-input
@@ -60,7 +79,11 @@
           placeholder-style="color: #C3C3C3"
           @keyup.enter.native="handleLogin"
         >
-        <svg-icon slot="prefix" icon-class="validCode" class="el-input__icon input-icon" />
+          <ty-icon
+            slot="prefix"
+            type="password"
+            class="login-password"
+          />
 
           <el-button
             style="font-size:12px;"
@@ -78,7 +101,9 @@
           />
         </span>
       </el-form-item>
- 
+      <span class="password-error" v-if="false">
+        您已经输错了1次密码，还有4次机会。若超过4次，则您的账号将被锁定24小时。
+      </span>
       <el-button
         type="primary"
         style="
@@ -92,14 +117,53 @@
         >登录</el-button
       >
     </el-form>
+    <div class="mask-box" v-if="isResetPwd">
+      <div class="reset-dialog">
+        <span class="tips-title"
+          >这是您首次登录系统，请设置一个新的密码进入系统。</span
+        >
+        <div>
+          <el-form
+            :model="ruleForm"
+            status-icon
+            :rules="rules"
+            ref="ruleForm"
+            label-width="100px"
+            class="demo-ruleForm"
+          >
+            <el-form-item label="新密码：" prop="password">
+              <el-input
+                maxlength="30"
+                v-model="ruleForm.password"
+                show-password
+                auto-complete="new-password"
+                class="new-password"
+              ></el-input>
+            </el-form-item>
+            <el-form-item label="密码强度：" class="mfqd">
+              <ul class="bg-color" v-show="strength > 0">
+                <li v-show="strength > 1" class="hong "></li>
+                <li v-show="strength > 2" class="cheng "></li>
+                <li v-show="strength > 3" class="huang "></li>
+                <li v-show="strength > 4" class="lv "></li>
+                <li v-show="strength > 5" class="qing "></li>
+              </ul>
+            </el-form-item>
 
+            <el-form-item>
+              <el-button type="primary" @click="submitForm('ruleForm')">确定</el-button>
+              <el-button @click="back">取消</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 <script>
 //   import { getOrgList } from "@/api/system/org.js";
 //   import { getInfoByTenantcode } from "@/api/user";
 //   import { title } from "@/settings";
-import Cookies from "js-cookie";
 export default {
   name: "Login",
   data() {
@@ -121,32 +185,65 @@ export default {
       },
       showPage: false,
       loginForm: {
-        username: "admin",
-        password: "123456",
+        username: "",
+        password: "",
         // orgId: "",
       },
    
-      title:'珞格科技发展档案管理系统',
+      title:'212',
       loading: false,
       passwordType: "password",
       redirect: undefined,
       isAdmin: false,
       orgOptions: [],
       bgImg: null, //自定义bg
-      loginRules: {
-          username: [
-            { required: true, trigger: "blur", message: "请输入您的用户名" }
-          ],
-          password: [
-            { required: true, trigger: "blur", message: "请输入您的密码" }
-          ],
-          code: [{ required: true, trigger: "change", message: "请输入验证码" }]
-        },
     };
   },
   watch: {
-   
-    
+    $route: {
+      handler(route) {
+        if (route.path.includes('admin')) {
+          this.isAdmin = true
+        }
+        const roleKey = route.params.roleKey || ''
+        sessionStorage.setItem('roleKey', roleKey)
+        this.redirect = route.query && route.query.redirect
+      },
+      immediate: true,
+    },
+    'ruleForm.password'(val) {
+      //  this.strength = 0
+      let digit = /^\d{n,}$/; // 验证至少n位数字：n 动态调
+      let number = /^[0-9]*$/; // 全是验证数字：
+      let letter = /^[a-zA-Z]+$/; //全是字母
+      var reg1 = new RegExp(/^(?![^a-zA-Z]+$)(?!\D+$)/);
+      var reg2 = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]$/;
+      var reg3 = /(?=.*[A-Z])(?=.*[a-z])(?=.*[0-9])(?=.*[\W])/;
+      // 密码长度要大于6位，由数字和字母组成
+      // var reg1 =/^[0-9]*$
+      const value = String(val);
+      const len = value.length;
+      if (len < 6) {
+        // 强度1：用红色表示，当密码小于6位且仅由数字或字母的一种组成
+        if (number.test(value) || letter.test(value)) this.strength = 2
+
+        // 强度2：用橙色表示，当密码小于6位且由数字和字母共同组成
+        if (reg1.test(value)) this.strength = 3;
+      }
+
+      if (len > 6) {
+        // 强度3：用黄色表示，当密码大于6位且由数字和字母共同组成
+        if (reg1.test(val)) this.strength = 4;
+      }
+
+      if (len > 8) {
+        // 强度4：用淡绿色表示，当密码大于8位且由数字和大写字母及小写字母共同组成
+        if (reg2.test(val)) this.strength = 5;
+
+        // 强度5：用深绿色表示，当密码大于8位且由数字和大写字母，小写字母，特殊符号共同组成
+        if (reg3.test(val)) this.strength = 6;
+      }
+    },
   },
   created() {
     if (
@@ -173,8 +270,33 @@ export default {
     }
   },
   methods: {
- 
-
+    // 获取商户信息
+    getTenantInfo(roleKey) {
+      getInfoByTenantcode(roleKey).then((res) => {
+        const resData = res.data;
+        const { loginBgFileInfo, logoFileInfo, menuName } = resData;
+        const bgImg = loginBgFileInfo ? loginBgFileInfo.url : "";
+        const logo = logoFileInfo ? logoFileInfo.url : "";
+        const navMenuName = menuName || "";
+        this.bgImg = bgImg;
+        localStorage.setItem("navLogo", logo);
+        localStorage.setItem("navMenuName", navMenuName);
+      });
+    },
+    // 获取组织列表
+    getOrg() {
+      let sendData = {
+        tenantCode: this.$route.params.roleKey,
+      };
+      getOrgList(sendData).then((res) => {
+        this.orgOptions = res.data || [];
+        this.orgOptions.map((item) => {
+          if (this.$route.params.roleKey == item.orgCode) {
+            this.loginForm.orgId = item.id;
+          }
+        });
+      });
+    },
     showPwd() {
       if (this.passwordType === "password") {
         this.passwordType = "";
@@ -195,54 +317,30 @@ export default {
       });
     },
     handleLogin() {
-      // this.$refs.loginForm.validate((valid) => {
-      //   if (valid) {
-      //     this.loading = true;
-      //     if (this.isAdmin) {
-      //       delete this.loginForm.orgId;
-      //       localStorage.setItem("navLogo", "");
-      //     }
-      //     const RsaLoginForm = {
-      //       ...this.loginForm,
-      //       password: this.$md5(this.loginForm.password),
-      //     };
-      //     this.$store
-      //       .dispatch("user/login", RsaLoginForm)
-      //       .then(() => {
-      //         this.$router.push({
-      //           path: "/",
-      //         });
-      //         this.loading = false;
-      //       })
-      //       .catch(() => {
-      //         this.loading = false;
-      //       });
-      //   }
-      // });
-          
-      this.$refs.loginForm.validate(valid => {
-          if (valid) {
-            this.loading = true;
-            if (this.loginForm.rememberMe) {
-              Cookies.set("username", this.loginForm.username, { expires: 30 });
-              Cookies.set("password", encrypt(this.loginForm.password), { expires: 30 });
-              Cookies.set('rememberMe', this.loginForm.rememberMe, { expires: 30 });
-            } else {
-              Cookies.remove("username");
-              Cookies.remove("password");
-              Cookies.remove('rememberMe');
-            }
-            this.$store.dispatch("Login", this.loginForm).then(() => {
-              this.$router.push({ path: this.redirect || "/" }).catch(()=>{});
-            }).catch(() => {
-              this.loading = false;
-              if (this.captchaEnabled) {
-                this.getCode();
-              }
-            });
+      this.$refs.loginForm.validate((valid) => {
+        if (valid) {
+          this.loading = true;
+          if (this.isAdmin) {
+            delete this.loginForm.orgId;
+            localStorage.setItem("navLogo", "");
           }
-        });
-      
+          const RsaLoginForm = {
+            ...this.loginForm,
+            password: this.$md5(this.loginForm.password),
+          };
+          this.$store
+            .dispatch("user/login", RsaLoginForm)
+            .then(() => {
+              this.$router.push({
+                path: "/",
+              });
+              this.loading = false;
+            })
+            .catch(() => {
+              this.loading = false;
+            });
+        }
+      });
     },
     back() {
       this.isResetPwd = false
@@ -419,8 +517,7 @@ $color_primary: #356edf;
         border-bottom: solid 1px #a0a3aa;
         padding-right: 68px;
         font-size: 14px;
-        text-indent:5px;
-        // text-indent: 16px;
+        text-indent: 16px;
       }
     }
 
@@ -456,8 +553,8 @@ $color_primary: #356edf;
     position: relative;
 
     .title-greet {
-      font-size: 15px;
-      font-weight: 600;
+      color: #666;
+      font-size: 14px;
       height: 16px !important;
       margin-bottom: 16px;
     }

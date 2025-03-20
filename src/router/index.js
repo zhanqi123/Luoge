@@ -87,6 +87,20 @@ export const constantRoutes = [
         meta: { title: '个人中心', icon: 'user' }
       }
     ]
+  },
+  {
+    path: '/record',
+    component: Layout,
+    hidden: true,
+    redirect: 'noredirect',
+    children: [
+      {
+        path: 'add',
+        component: () => import('@/views/record/add'),
+        name: 'Addrecord',
+        meta: { title: '预审材料', icon: 'user' }
+      }
+    ]
   }
 ]
 

@@ -159,6 +159,7 @@ export default {
       this.theme = val;
     },
     handleTheme(val) {
+      console.log(val)
       this.$store.dispatch('settings/changeSetting', {
         key: 'sideTheme',
         value: val

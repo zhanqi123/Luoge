@@ -15,6 +15,7 @@
     -webkit-transition: width .28s;
     transition: width 0.28s;
     width: $base-sidebar-width !important;
+    // background-color: $base-menu-background;
     background-color: $base-menu-background;
     height: 100%;
     position: fixed;

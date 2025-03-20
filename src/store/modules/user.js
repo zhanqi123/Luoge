@@ -1,8 +1,8 @@
 import { login, logout, getInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { isHttp, isEmpty } from "@/utils/validate"
-import defAva from '@/assets/images/profile.jpg'
-
+// import defAva from '@/assets/images/profile.jpg'
+import defAva from '@/assets/images/profile.png'
 const user = {
   state: {
     token: getToken(),
