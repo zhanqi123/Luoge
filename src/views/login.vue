@@ -28,8 +28,8 @@
         <div class="title-greet">欢迎登录~</div>
         <div class="title">{{ title }}</div>
       </div>
-   
-      <el-form-item prop="username" class="form-input">
+      <div id="login_container" class="qrcode-container"></div>
+      <!-- <el-form-item prop="username" class="form-input">
         
         <el-input
           ref="username"
@@ -42,7 +42,7 @@
           placeholder-style="color: #C3C3C3"
           @keyup.enter.native="handleLogin"
         >
-      
+     
         <svg-icon slot="prefix" icon-class="user" class="el-input__icon input-icon" />
         </el-input>
       
@@ -62,23 +62,11 @@
         >
         <svg-icon slot="prefix" icon-class="validCode" class="el-input__icon input-icon" />
 
-          <el-button
-            style="font-size:12px;"
-            slot="suffix"
-            type="text"
-            @click.native.prevent="handleResetPwd"
-          >找回密码</el-button>
+       
         </el-input>
-        <span class="show-pwd" @click="showPwd">
-          <i
-            :class="[
-              'anticon',
-              passwordType === 'password' ? 'closeEye' : 'openEye',
-            ]"
-          />
-        </span>
+      
       </el-form-item>
- 
+
       <el-button
         type="primary"
         style="
@@ -90,9 +78,29 @@
         :loading="loading"
         @click.native.prevent="handleLogin"
         >登录</el-button
-      >
-    </el-form>
+      > -->
+      <!-- <el-button
+        type="warning"
+        style="
+          width: 20%;
+          margin-top: 10%;
+          padding: 10px 20px;
+          font-size: 18px;
+          position: absolute;
+          top: -5%;
 
+          z-index: 9999;
+          left: 3%;
+        "
+        :loading="loading"
+        @click.native.prevent="handleLogin"
+        >登录</el-button
+      > -->
+    </el-form>
+   
+
+    <!-- <el-button type="primary" @click="handleScanQrCode">扫码登录</el-button> -->
+     
   </div>
 </template>
 <script>
@@ -142,6 +150,8 @@ export default {
           ],
           code: [{ required: true, trigger: "change", message: "请输入验证码" }]
         },
+        qrCodeUrl: "https://oapi.dingtalk.com/connect/qrconnect?appid=dingjzgedsmzjqhxucpj&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://erp.hbluoge.com/LoginAPI.aspx?",
+        loginTmpCode: null
     };
   },
   watch: {
@@ -233,6 +243,8 @@ export default {
               Cookies.remove('rememberMe');
             }
             this.$store.dispatch("Login", this.loginForm).then(() => {
+              this.loading = true;
+              
               this.$router.push({ path: this.redirect || "/" }).catch(()=>{});
             }).catch(() => {
               this.loading = false;
@@ -246,8 +258,38 @@ export default {
     },
     back() {
       this.isResetPwd = false
-    }
+    },
+    initDingLogin() {
+        const obj = window.DDLogin({
+          id: "login_container",
+          goto: encodeURIComponent(this.qrCodeUrl),
+          style: "border:none;background-color:#FFFFFF;  text-align: center;",
+          width: "300",
+          height: "400",
+          
+        });
+      },
+      handleDingMessage(event) {
+         
+        if (event.origin !== "https://login.dingtalk.com") return;
+        this.loginTmpCode = event.data;
+        console.log(this.loginTmpCode)
+        this.handleLoginWithCode();
+      },
+      handleLoginWithCode() {
+       this.handleLogin()
+        return
+        // 调用后端接口，携带loginTmpCode获取用户信息
+        this.$store.dispatch("LoginByDingTalk", { code: this.loginTmpCode })
+          .then(() => {
+            this.$router.push({ path: '/' });
+          });
+      }
   },
+  mounted() {
+      this.initDingLogin();
+      window.addEventListener('message', this.handleDingMessage);
+    },
 };
 </script>
 <style lang="scss">
@@ -404,7 +446,7 @@ $color_primary: #356edf;
     position: fixed;
     right: 18%;
     top: 18%;
-    width: 23%;
+    // width: 23%;
     min-width: 280px;
     /* 高度修改 */
     height: 60%;
@@ -413,7 +455,12 @@ $color_primary: #356edf;
     background: #fff;
     border-radius: 10px;
     min-height: 360px;
-
+    // display: flex; 
+justify-content: center; 
+align-items: center; 
+.qrcode-container{
+  text-align: center;
+}
     .form-input {
       ::v-deep .el-input input {
         border-bottom: solid 1px #a0a3aa;

@@ -90,7 +90,10 @@ export default {
       this.$store.dispatch('app/toggleSideBar')
     },
     logout() {
-           location.href = '/login'
+      
+      this.$store.dispatch('FedLogOut').then(() => {
+          location.href = '/index'
+        })
       return
       this.$confirm('确定注销并退出系统吗？', '提示', {
         confirmButtonText: '确定',
@@ -172,13 +175,13 @@ export default {
       margin-right: 30px;
 
       .avatar-wrapper {
-        margin-top: 5px;
+        margin-top: 10px;
         position: relative;
 
         .user-avatar {
           cursor: pointer;
-          width: 35px;
-          height: 35px;
+          width: 30px;
+          height: 30px;
           border-radius: 10px;
         }
 
@@ -186,7 +189,8 @@ export default {
           cursor: pointer;
           position: absolute;
           right: -20px;
-          top: 25px;
+          // top: 25px;
+          top: 10px;
           font-size: 12px;
         }
       }
