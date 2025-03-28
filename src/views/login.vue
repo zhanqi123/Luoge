@@ -79,7 +79,7 @@
         @click.native.prevent="handleLogin"
         >登录</el-button
       > -->
-      <!-- <el-button
+     <el-button
         type="warning"
         style="
           width: 20%;
@@ -88,14 +88,12 @@
           font-size: 18px;
           position: absolute;
           top: -5%;
-
           z-index: 9999;
-          left: 3%;
-        "
+          left: 3%;"
         :loading="loading"
         @click.native.prevent="handleLogin"
         >登录</el-button
-      > -->
+      > 
     </el-form>
    
 
@@ -195,15 +193,15 @@ export default {
         this.$refs.password.focus();
       });
     },
-    handleResetPwd() {
-      sessionStorage.setItem("roleKey", this.$route.params.roleKey);
-      this.$router.push({
-        path: "/resetPwd",
-        query: {
-          tenantCode: this.$route.params.roleKey,
-        },
-      });
-    },
+    // handleResetPwd() {
+    //   sessionStorage.setItem("roleKey", this.$route.params.roleKey);
+    //   this.$router.push({
+    //     path: "/resetPwd",
+    //     query: {
+    //       tenantCode: this.$route.params.roleKey,
+    //     },
+    //   });
+    // },
     handleLogin() {
       // this.$refs.loginForm.validate((valid) => {
       //   if (valid) {
@@ -229,7 +227,21 @@ export default {
       //       });
       //   }
       // });
-          
+      
+      this.$store.dispatch("Login", this.loginTmpCode).then((res) => {
+             console.log(res)
+        return
+              this.loading = true;
+              
+              this.$router.push({ path: this.redirect || "/" }).catch(()=>{});
+            }).catch(() => {
+              this.loading = false;
+              if (this.captchaEnabled) {
+                this.getCode();
+              }
+            });
+      
+      return
       this.$refs.loginForm.validate(valid => {
           if (valid) {
             this.loading = true;
@@ -273,16 +285,17 @@ export default {
          
         if (event.origin !== "https://login.dingtalk.com") return;
         this.loginTmpCode = event.data;
-        console.log(this.loginTmpCode)
-        this.handleLoginWithCode();
+      
+        this.handleLogin();
       },
       handleLoginWithCode() {
-       this.handleLogin()
-        return
+
+   
+     
         // 调用后端接口，携带loginTmpCode获取用户信息
-        this.$store.dispatch("LoginByDingTalk", { code: this.loginTmpCode })
+        this.$store.dispatch("login", { code: this.loginTmpCode })
           .then(() => {
-            this.$router.push({ path: '/' });
+            // this.$router.push({ path: '/' });
           });
       }
   },

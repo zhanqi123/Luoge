@@ -12,6 +12,7 @@
                     <el-descriptions-item label="备案编号">F55DA5546812DJIOL</el-descriptions-item>
                     <el-descriptions-item label="系统编号">F55DA5546812DJIOL1188</el-descriptions-item>
                     <el-descriptions-item label="系统名称">安全支付系统</el-descriptions-item>
+                    <el-descriptions-item label="报告编号">87486868668</el-descriptions-item>
                 </el-descriptions>
             </el-card>
 
@@ -21,14 +22,24 @@
                     <span class="section-title">实施报备信息</span>
                 </template>
                 <el-row>
-                    <el-col :span="12">
-                        <el-form-item label="报备时间：">
+                    <el-col :span="8">
+                        <el-form-item label="报备审核通过时间：" label-width="180px">
                             <el-date-picker type="date" placeholder="选择日期" v-model="form.reportTime"
                                 style="width: 100%;"></el-date-picker>
                         </el-form-item>
                     </el-col>
-                    <el-col :span="12">
-                        <el-form-item label="报备人员：">
+                    <el-col :span="8">
+                        <el-form-item label="报备许可时间：" label-width="180px">
+                            <!-- <el-date-picker type="date" placeholder="选择日期" v-model="form.reportTime"
+                                style="width: 100%;"></el-date-picker> -->
+                            <el-date-picker v-model="value1" type="daterange" range-separator="至"
+                                start-placeholder="开始日期" end-placeholder="结束日期">
+                            </el-date-picker>
+                        </el-form-item>
+                    </el-col>
+
+                    <el-col :span="8">
+                        <el-form-item label="报备人员：" label-width="180px">
                             <el-input v-model="form.reportPerson" placeholder="请输入报备人员"></el-input>
                         </el-form-item>
                     </el-col>
@@ -41,17 +52,92 @@
                     <span class="section-title">项目实施信息</span>
                 </template>
                 <el-row>
-                    <el-col :span="8" v-for="(item, index) in projectPhases" :key="index">
-                        <el-form-item :label="item.label" label-width="150px">
-                            <el-row>
-                                <el-col :span="11">
-                                    <el-date-picker type="date" size="mini" placeholder="选择日期" v-model="form[item.prop]"
-                                        style="width: 100%;"></el-date-picker>
-                                </el-col>
-                                <el-col :span="11" style="margin-left: 5px;">
-                                    <el-input v-model="form[`${item.prop}Person`]" :placeholder="item.placeholder"
-                                        size="mini"></el-input>
-                                </el-col>
+                    <el-col :span="24" v-for="(item, index) in projectPhases" :key="index" style="margin-left: 10px;">
+                        <el-form-item :label="item.label" label-width="140px">
+                            <el-row v-if="!item.datefales">
+                                <div v-if="item.prop == 'stxx' || item.prop == 'lssj'">
+                                    <span>
+                                        <el-radio  v-model="form[`${item.prop}radio`]" label="1" border size="mini">放弃</el-radio>
+                                        <el-radio  v-model="form[`${item.prop}radio`]" label="2" border size="mini">未放弃</el-radio>
+                                        <span v-if="item.prop == 'stxx'"> <el-radio   v-model="form[`${item.prop}radio`]" label="3"  border size="mini">不做</el-radio></span>
+                                    </span>
+                                    <sapn style="margin-left: 25px;" v-if="form[`${item.prop}radio`]=='2'">
+                                        <el-radio  v-model="form[`${item.prop}radio1`]" label="4"  size="mini">本地</el-radio>
+                                        <el-radio  v-model="form[`${item.prop}radio1`]" label="5"  size="mini">远程</el-radio>
+                                    </sapn>
+                                </div>
+                                <div v-else >
+                                    <div v-if="item.prop!=='bgxx'">
+                                    <el-col :span="2.5" style="text-align: center;">
+                                        <span>开始时间：</span>
+                                    </el-col>
+                                    <el-col :span="4">
+                                        <el-date-picker type="date" size="mini" placeholder="选择日期"
+                                            value-format="yyyy-MM-dd" v-model="form[`${item.prop}startTime`]"
+                                            style="width: 100%;"></el-date-picker>
+                                    </el-col>
+                                    <el-col :span="2.5" style="text-align: center; margin-left: 5px;">
+                                        <span>结束时间：</span>
+                                    </el-col>
+                                    <el-col :span="4">
+                                        <el-date-picker type="date" size="mini" placeholder="选择日期"
+                                            value-format="yyyy-MM-dd" v-model="form[`${item.prop}endTime`]"
+                                            style="width: 100%;"></el-date-picker>
+                                    </el-col>
+                                </div>
+                                    <div v-if="item.prop=='xccp'">
+                                        <el-col :span="2.5" style="text-align: center; margin-left: 5px;" >
+                                        <span>测试组长：</span>
+                                    </el-col>
+                                    <el-col :span="3" style="margin-left: 5px;" >
+
+                                        <el-input v-model="form[`${item.prop}leader`]" :placeholder="item.placeholder"
+                                            size="mini"></el-input>
+                                    </el-col>
+                                    <el-col :span="2.5" style="text-align: center; margin-left: 5px;" >
+                                        <span>组员：</span>
+                                    </el-col>
+                                    <el-col :span="3" style="margin-left: 5px;" >
+
+                                        <el-input v-model="form[`${item.prop}user`]" :placeholder="item.placeholder"
+                                            size="mini"></el-input>
+                                    </el-col>
+                                    <el-col :span="2.5" style="text-align: center; margin-left: 5px;" >
+                                        <span>渗透人员：</span>
+                                    </el-col>
+                                    <el-col :span="3" style="margin-left: 5px;" >
+                                        <el-input v-model="form[`${item.prop}permeate`]" :placeholder="item.placeholder"
+                                            size="mini"></el-input>
+                                    </el-col>
+                                    </div>
+                                </div>
+                                <div v-if="item.prop=='bgxx'">
+                                    <el-col :span="2.5" style="text-align: center;">
+                                        <span>报告编号：</span>
+                                    </el-col>
+                                    <el-col :span="4">
+                                        <el-input v-model="form[`${item.prop}permeate`]" :placeholder="item.placeholder"
+                                            size="mini"></el-input>
+                                    </el-col>
+                                    <el-col :span="2.5" style="text-align: center; margin-left: 5px;">
+                                        <span>报告封面时间：</span>
+                                    </el-col>
+                                    <el-col :span="4">
+                                        <el-input v-model="form[`${item.prop}permeate`]" :placeholder="item.placeholder"
+                                            size="mini"></el-input>
+                                    </el-col>
+                                </div>
+
+                            </el-row>
+                            <el-row v-else>
+                                <!-- 打卡日期（改成表格） 打卡人员/打开日期： 2024-3-15、2024-3-18 -->
+                                <el-table :data="tableData2" border style="width: 50%">
+                                    <el-table-column prop="year" label="打卡日期" align="center" width="180">
+                                    </el-table-column>
+                                    <el-table-column prop="user" label="打卡人员" align="center">
+                                    </el-table-column>
+
+                                </el-table>
                             </el-row>
                         </el-form-item>
                     </el-col>
@@ -63,7 +149,8 @@
                 <template #header>
                     <span class="section-title">过程文件上传</span>
                 </template>
-                <el-row v-for="(item, index) in fileUploadItems" :key="index">
+                <!-- <el-row v-for="(item, index) in fileUploadItems" :key="index"> -->
+                <el-row v-for="(item, index) in filteredFileUploadItems" :key="index" style="margin-left: 10px;">
                     <el-col :span="24">
                         <el-form-item :label="item.label">
                             <el-row>
@@ -84,14 +171,48 @@
                                             @change="() => handleRadioChange(index)">共用</el-radio>
                                     </span>
                                 </el-col>
-                                <el-col :span="6" v-if="item.hasInput">
+                                <el-col :span="4" v-if="item.hasInput" style="margin-right: 5px;">
                                     <el-input placeholder="签署人员多人请用、符号区分" v-model="form[item.inputModel]"
                                         @blur="handleInput(index, item)" size="mini"></el-input>
                                 </el-col>
-                                <el-col :span="5" v-if="item.hasDatePicker" style="margin-left: 8px;">
-                                    <el-date-picker v-model="form[item.dateModel]" size="mini" value-format="yyyy-MM-dd"
-                                        type="date" :placeholder="item.datePlaceholder"
-                                        @change="handleDateChange(index)"></el-date-picker>
+                                <el-col :span="4" v-if="item.first" style="margin-right: 5px;">
+                                    <el-input placeholder="甲方人员多人请用、符号区分" v-model="form[`${item.inputModel}PartyA`]"
+                                        @blur="handleInput(index, item, true)" size="mini"></el-input>
+                                </el-col>
+                                <div v-if="item.fileType == '现场测评授权书'">
+                                    <el-col :span="6" v-if="item.hasDatePicker">
+                                        <el-date-picker v-model="form[item.dateModel]" size="mini"
+                                            value-format="yyyy-MM-dd" type="date" :placeholder="item.datePlaceholder"
+                                            @change="handleDateChange(item, index)"></el-date-picker>
+                                    </el-col>
+                                </div>
+                                <div v-else>
+                                    <el-col :span="4" v-if="item.hasDatePicker">
+                                        <el-date-picker v-model="form[item.dateModel]" size="mini"
+                                            value-format="yyyy-MM-dd" type="date" :placeholder="item.datePlaceholder"
+                                            @change="handleDateChange(item, index)"></el-date-picker>
+                                    </el-col>
+                                </div>
+
+
+                                <!-- <el-col :span="2" style="margin-left: 8px;">
+                                     现场签署时间范围
+                                </el-col> -->
+                                <el-col :span="6" v-if="item.dateList" style="margin-left: 8px;">
+
+                                    <div v-if="item.fileType == '测试现场接收/归还文档清单'">
+                                        <el-date-picker v-model="form[item.orizonDate]" type="daterange" size="mini"
+                                            range-separator="至" value-format="yyyy-MM-dd" start-placeholder="接收日期"
+                                            end-placeholder="归还日期" @change="handleDatehorizon(item, index)">
+                                        </el-date-picker>
+                                    </div>
+                                    <div v-else>
+                                        <el-date-picker v-model="form[item.orizonDate]" type="daterange" size="mini"
+                                            range-separator="至" value-format="yyyy-MM-dd" start-placeholder="授权开始日期"
+                                            end-placeholder="授权结束日期" @change="handleDatehorizon(item, index)">
+                                        </el-date-picker>
+                                    </div>
+
                                 </el-col>
                             </el-row>
                         </el-form-item>
@@ -142,13 +263,31 @@ export default {
     data() {
         return {
             form: {
+                cpzbstartTime: '',//测评开始时间
+                cpzbendTime: '',// 测评结束时间
+                cezbuser: '', //测评准备人员
+                fabzstartTime: '',//方案编制开始时间
+                fabzendTime: '',// 方案编制结束时间
+                fabzuser: '', //方案编制人员
+                xccpstartTime: '2025-03-15',//现场测评开始时间
+                xccpendTime: '2025-03-18',// 现场测评结束时间
+                xccpuser: '张三、李四', //现场测评人员
+                bgbzstartTime: '',//报告编制开始时间
+                bgbzendTime: '',// 报告编制结束时间
+                bgbzuser: '', //报告编制测评人员
+                stxxstartTime: '',//渗透信息开始时间
+                stxxendTime: '',// 渗透信息结束时间
+                stxxuser: '', //渗透信息测评人员
+                lssjstartTime: '',//漏扫开始时间
+                lssjendTime: '',// 漏扫结束时间
+                lssjuser: '', //漏扫测评人员
                 projectNumber: '',
                 unitName: '',
                 recordNumber: '',
                 systemNumber: '',
                 systemName: '',
                 reportTime: '',
-                reportPerson: '',
+                reportPerson: '张三、李四',
                 assessmentPrepareTime: '',
                 assessmentPreparePerson: '',
                 planCompilationTime: '',
@@ -164,7 +303,15 @@ export default {
                 assessmentRiskNoticeSigner: '',
                 assessmentRiskNoticeDate: '',
                 dispatchChangeSigner: '',
-                dispatchChangeDate: ''
+                dispatchChangeDate: '',
+                // 新增甲方人员字段
+                assessmentRiskNoticeSignerPartyA: '',
+                dispatchChangeSignerPartyA: '',
+                sceneSigner: '张三、李四',
+                firstMeetingSigner: '张三、李四',
+                   stxxradio: '1', // 渗透测试信息默认选择有
+                lssjradio: '1', // 漏扫时间信息默认选择有
+                // 其他字段以此类推...
             },
             radio: '1',
             loading: true,
@@ -189,9 +336,22 @@ export default {
             },
             fileLists: [[], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], [], []],
             uploadedFiles: [],
+            value1: [],
 
             uploadError: null,
             uploadUrl: 'https://jsonplaceholder.typicode.com/posts/',
+            tableData2: [
+                {
+                    year: '2024-12-11',
+                    user: '张三',
+                    address: '湖北省武汉市江岸区京汉大道38号'
+                },
+                {
+                    year: '2024-12-07',
+                    user: '李四',
+                    address: '北京市朝阳区京汉大道38号'
+                }
+            ],
             tableData1: [
                 {
                     year: 2024,
@@ -255,41 +415,51 @@ export default {
                 }
             ],
             projectPhases: [
-                { label: "测评准备时间：", prop: "assessmentPrepareTime", placeholder: "测评准备人员" },
-                { label: "方案编制时间：", prop: "planCompilationTime", placeholder: "方案编制人员" },
-                { label: "现场测评时间：", prop: "onSiteAssessmentTime", placeholder: "现场测评人员" },
-                { label: "报告编制时间：", prop: "reportCompilationTime", placeholder: "报告编制人员" },
-                { label: "渗透时间：", prop: "penetrationTime", placeholder: "渗透人员" },
-                { label: "漏扫时间：", prop: "vulnerabilityScanTime", placeholder: "漏扫人员" }
+                {
+                    label: "测评准备信息：", prop: "cpzb",
+                    placeholder: "测评准备人员信息",
+                    radiofalg: false
+                },
+                { label: "方案编制信息：", prop: "fabz", placeholder: "方案编制人员信息" },
+                { label: "现场测评信息：", prop: "xccp", placeholder: "现场测评人员信息" },
+                { label: "渗透测试信息：", prop: "stxx", placeholder: "渗透人员信息" },
+                { label: "漏扫时间信息：", prop: "lssj", placeholder: "漏扫人员信息" },
+                { label: "报告编制信息：", prop: "bgbz", placeholder: "报告编制人员信息" },
+                { label: "报告信息：", prop: "bgxx", placeholder: "报告信息" },
+                { label: "行程信息：", prop: "vulnerabilityScanTime", placeholder: "行程人员(打开人员获取)信息", datefales: true }
             ],
             fileUploadItems: [
-                { label: "上传等级测评计划书：", fileType: "等级测评计划书", hasRadio: false, disableOnShared: true },
                 { label: "信息系统基本调查表：", fileType: "信息系统基本调查表", hasRadio: true },
                 { label: "等级测评项目基本情况表：", fileType: "等级测评项目基本情况表", hasRadio: true },
-                { label: "现场测评授权书：", fileType: "现场测评授权书", hasRadio: true },
-                { label: "等级评测方案审核单：", fileType: "等级评测方案审核单", hasRadio: true },
-                { label: "测试现场见证记录：", fileType: "测试现场见证记录", hasRadio: true },
-                { label: "风险规避方案：", fileType: "风险规避方案", hasRadio: true },
-                { label: "自愿放弃验证测试声明：", fileType: "自愿放弃验证测试声明", hasRadio: true },
-                { label: "测评风险告知书：", fileType: "测评风险告知书", hasRadio: true, hasInput: true, inputModel: "assessmentRiskNoticeSigner", hasDatePicker: true, dateModel: "assessmentRiskNoticeDate", datePlaceholder: "签署日期", radio: '1' },
+                { label: "上传等级测评计划书：", fileType: "等级测评计划书", hasRadio: false, disableOnShared: true },
+
                 { label: "派工变更单：", fileType: "派工变更单", hasRadio: true, hasInput: true, inputModel: "dispatchChangeSigner", hasDatePicker: true, dateModel: "dispatchChangeDate", datePlaceholder: "签署日期", radio: '1' },
-                { label: "现场记录表：", fileType: "现场记录表", hasRadio: true, hasInput: true, inputModel: "siteRecordSigner", hasDatePicker: true, dateModel: "siteRecordDate", datePlaceholder: "签署日期", radio: '1' },
-                { label: "等级评测方案：", fileType: "等级评测方案", hasRadio: true, hasInput: true, inputModel: "assessmentPlanSigner", hasDatePicker: true, dateModel: "assessmentPlanDate", datePlaceholder: "签署日期", radio: '1' },
-                { label: "测试现场接收/归还文档清单：", fileType: "测试现场接收/归还文档清单", hasRadio: true, hasInput: true, inputModel: "documentListSigner", hasDatePicker: true, dateModel: "documentListDate", datePlaceholder: "签署日期", radio: '1' },
-                { label: "末次会议签到表：", fileType: "末次会议签到表", hasRadio: true, hasInput: true, inputModel: "lastMeetingSigner", hasDatePicker: true, dateModel: "lastMeetingDate", datePlaceholder: "签署日期", radio: '1' },
-                { label: "验证测试授权书：", fileType: "验证测试授权书", hasRadio: true, hasInput: true, inputModel: "verificationAuthorizationSigner", hasDatePicker: true, dateModel: "verificationAuthorizationDate", datePlaceholder: "签署日期", radio: '1' },
-                { label: "验证性测试入场离场确认单：", fileType: "验证性测试入场离场确认单", hasRadio: true, hasInput: true, inputModel: "verificationConfirmationSigner", hasDatePicker: true, dateModel: "verificationConfirmationDate", datePlaceholder: "签署日期", radio: '1' },
-                { label: "首次会议签到表：", fileType: "首次会议签到表", hasRadio: true, hasInput: true, inputModel: "firstMeetingSigner", hasDatePicker: true, dateModel: "firstMeetingDate", datePlaceholder: "签署日期", radio: '1' },
-                { label: "原始扫漏记录：", fileType: "原始扫漏记录", hasRadio: true, hasInput: true, inputModel: "vulnerabilityRecordSigner", hasDatePicker: true, dateModel: "vulnerabilityRecordDate", datePlaceholder: "签署日期", radio: '1' },
-                { label: "渗透测试报告：", fileType: "渗透测试报告", hasRadio: true, hasInput: true, inputModel: "penetrationReportSigner", hasDatePicker: true, dateModel: "penetrationReportDate", datePlaceholder: "签署日期", radio: '1' },
-                { label: "信息安全等级保护测评服务情况评价表：", fileType: "信息安全等级保护测评服务情况评价表", hasRadio: true, hasInput: true, inputModel: "evaluationFormSigner", hasDatePicker: true, dateModel: "evaluationFormDate", datePlaceholder: "签署日期", radio: '1' }
+                { label: "等级测评方案审核单：", fileType: "等级测评方案审核单", hasRadio: false },
+                { label: "等级测评方案：", fileType: "等级测评方案", hasRadio: false, hasInput: true, inputModel: "assessmentPlanSigner", hasDatePicker: true, dateModel: "assessmentPlanDate", datePlaceholder: "签署日期", radio: '1' },
+                { label: "风险规避方案：", fileType: "风险规避方案", hasRadio: true },
+                { label: "首次会议签到表：", first: true, fileType: "首次会议签到表", hasRadio: true, hasInput: true, inputModel: "firstMeetingSigner", hasDatePicker: true, dateModel: "firstMeetingDate", datePlaceholder: "签署日期", radio: '1' },
+                { label: "测评风险告知书：", fileType: "测评风险告知书", hasRadio: true, hasInput: true, inputModel: "assessmentRiskNoticeSigner", hasDatePicker: false, dateModel: "assessmentRiskNoticeDate", datePlaceholder: "签署日期", radio: '1' },
+                { label: "现场测评授权书：", fileType: "现场测评授权书", hasRadio: true, hasDatePicker: true, datePlaceholder: "签署日期早于授权开始时间", dateModel: "cpDate", dateList: true, orizonDate: 'xccpsqorizonDate' },
+                { label: "现场记录表：", first: true, fileType: "现场记录表", hasRadio: false, hasInput: true, inputModel: "siteRecordSigner", hasDatePicker: false, dateModel: "siteRecordDate", datePlaceholder: "签署日期", radio: '1' },
+                { label: "测评项目现场见证记录：", fileType: "测评项目现场见证记录", hasRadio: false, hasDatePicker: true, inputModel: "sceneSigner", dateModel: "sceneDate", hasInput: true, datePlaceholder: "签署日期" },
+                { label: "测试现场接收/归还文档清单：", first: true, fileType: "测试现场接收/归还文档清单", hasRadio: true, hasInput: true, inputModel: "documentListSigner", hasDatePicker: false, dateModel: "documentListDate", datePlaceholder: "签署日期", radio: '1', dateList: true, orizonDate: 'csghorizonDate' },
+                { label: "末次会议签到表：", first: true, fileType: "末次会议签到表", hasRadio: true, hasInput: true, inputModel: "lastMeetingSigner", hasDatePicker: true, dateModel: "lastMeetingDate", datePlaceholder: "签署日期", radio: '1' },
+                { label: "验证测试授权书：", first: true, fileType: "验证测试授权书", hasRadio: true, hasInput: false, inputModel: "verificationAuthorizationSigner", hasDatePicker: true, dateModel: "verificationAuthorizationDate", datePlaceholder: "签署日期", radio: '1', dateList: true, orizonDate: 'yzcsorizonDate' },
+                { label: "验证性测试入场离场确认单：", fileType: "验证性测试入场离场确认单", hasRadio: true, hasInput: true, inputModel: "verificationConfirmationSigner", hasDatePicker: true, dateModel: "verificationConfirmationDate", datePlaceholder: "签署日期", radio: '1', dateList: true },
+                { label: "自愿放弃验证测试声明：", fileType: "自愿放弃验证测试声明", hasRadio: true },
+                { label: "原始扫漏记录：", first: true, fileType: "原始扫漏记录", hasRadio: true, hasInput: true, inputModel: "vulnerabilityRecordSigner", hasDatePicker: true, dateModel: "vulnerabilityRecordDate", datePlaceholder: "签署日期", radio: '1' },
+                { label: "渗透测试报告：", first: true, fileType: "渗透测试报告", hasRadio: false, hasInput: true, inputModel: "penetrationReportSigner", hasDatePicker: true, dateModel: "penetrationReportDate", datePlaceholder: "签署日期", radio: '1' },
+                { label: "信息安全等级保护测评服务情况评价表：", first: true, fileType: "信息安全等级保护测评服务情况评价表", hasRadio: true, hasInput: false, inputModel: "evaluationFormSigner", hasDatePicker: true, dateModel: "evaluationFormDate", datePlaceholder: "签署日期", radio: '1' },
             ],
             downloadList: [],
-            selectedFileIndex: null
+            selectedFileIndex: null,
+            showDispatchChangeForm: false, // 新增标志位
         };
     },
     methods: {
         onSubmit() {
+            console.log(this.form)
+            return
             this.$refs.form.validate(valid => {
                 if (valid) {
 
@@ -302,31 +472,10 @@ export default {
         },
         reset() {
             this.form = {
-                projectNumber: '',
-                unitName: '',
-                recordNumber: '',
-                systemNumber: '',
-                systemName: '',
-                reportTime: '',
-                reportPerson: '',
-                assessmentPrepareTime: '',
-                assessmentPreparePerson: '',
-                planCompilationTime: '',
-                planCompilationPerson: '',
-                onSiteAssessmentTime: '',
-                onSiteAssessmentPerson: '',
-                reportCompilationTime: '',
-                reportCompilationPerson: '',
-                penetrationTime: '',
-                penetrationPerson: '',
-                vulnerabilityScanTime: '',
-                vulnerabilityScanPerson: '',
-                assessmentRiskNoticeSigner: '',
-                assessmentRiskNoticeDate: '',
-                dispatchChangeSigner: '',
-                dispatchChangeDate: ''
+
+                // 其他字段以此类推...
             };
-            this.$refs.form.resetFields();
+
         },
         handleSelectionChange(selection) {
             this.ids = selection;
@@ -376,7 +525,7 @@ export default {
             }
         },
         handleClose() {
-            // 关闭对话框时的逻辑
+            this.dialogVisible = false
         },
         submit(index) {
             if (this.ids.length > 0) {
@@ -400,6 +549,7 @@ export default {
         handleSearch(index, obj) {
             const item = this.fileUploadItems[index];
             const inputValue = this.form[item.inputModel];
+
             if (inputValue) {
                 if (!this.hasRiskNotice(this.downloadList, item.fileType)) {
                     this.downloadList.push({
@@ -420,18 +570,215 @@ export default {
                 }
             }
         },
-        handleDateChange(index) {
+        handleDatehorizon(val, index) {
+
+            if (val.fileType == '测试现场接收/归还文档清单') {
+                const startDateXccp = new Date(this.form.xccpendTime);
+                const [start, end] = this.form[val.dateModel];
+                const startDate = new Date(start);
+                const endDateRange = new Date(end);
+                if (startDate > startDateXccp || endDateRange > startDateXccp) {
+                    this.$alert('测试现场接收/归还文档清单的接收时间和规划日期不能晚于现场测评信息的结束时间!', '警告！', {
+                        confirmButtonText: '确定',
+                        callback: action => {
+                            this.form[val.dateModel] = [];
+                        }
+                    });
+                    return;
+                }
+            }
+            if (val.fileType == '验证测试授权书') {
+                const startDateXccp = new Date(this.form.xccpstartTime);
+                const [start, end] = this.form[val.orizonDate];
+                const startDate = new Date(start);
+                if (startDate > startDateXccp) {
+                    this.$alert('验证测试授权书 授权时间范围开始时间不得早于现场测评时间', '警告！', {
+                        confirmButtonText: '确定',
+                        callback: action => {
+                            this.form[val.orizonDate] = [];
+
+                        }
+                    });
+                    return;
+                }
+                this.form.verificationAuthorizationDate = ''
+            }
+            if (val.fileType == '现场测评授权书') {
+
+                const startDateXccp = new Date(this.form.xccpstartTime);
+                const [start, end] = this.form[val.orizonDate];
+                const startDate = new Date(start);
+                const endDateRange = new Date(end);
+
+                // 判断 startDateXccp 是否在 [startDate, endDateRange] 区间内
+                if (startDateXccp >= startDate && startDateXccp <= endDateRange) {
+                    // 在区间内的处理逻辑
+
+                } else {
+                    // 不在区间内的处理逻辑
+                    this.$alert('现场测评授权时间不在现场测评开始时间范围内!', '警告！', {
+                        confirmButtonText: '确定',
+                        callback: action => {
+                            this.form[val.orizonDate] = [];
+                        }
+                    });
+                }
+            }
+        },
+        handleDateChange(val, index) {
+
+            if (val.fileType == '测试现场接收/归还文档清单') {
+                const startDateXccp = new Date(this.form.xccpendTime);
+                const [start, end] = this.form[val.dateModel];
+                const startDate = new Date(start);
+                const endDateRange = new Date(end);
+                if (startDate > startDateXccp || endDateRange > startDateXccp) {
+                    this.$alert('测试现场接收/归还文档清单的接收时间和规划日期不能晚于现场测评信息的结束时间!', '警告！', {
+                        confirmButtonText: '确定',
+                        callback: action => {
+                            this.form[val.dateModel] = [];
+                        }
+                    });
+                    return;
+                }
+            }
+
+            switch (val.fileType) {
+                case '测评风险告知书':
+                    if (!this.isDateInRange4(this.form.assessmentRiskNoticeDate, this.form.xccpstartTime)) {
+                        this.$alert('测评风险告知书签署时间不能晚于现场测评时间!', '警告！', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+
+                            }
+                        });
+                        this.form.assessmentRiskNoticeDate = ''
+                    }
+                    break
+                case '首次会议签到表':
+                    const firstMeetingDate = new Date(this.form.firstMeetingDate);
+                    const xccpstartTime = new Date(this.form.xccpstartTime);
+                    if (firstMeetingDate.getTime() != xccpstartTime.getTime()) {
+                        this.$alert('首次会议签到表签署必须等于评测时间!', '警告！', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+
+                            }
+                        });
+                        this.form.firstMeetingDate = '';
+                        return;
+                    }
+
+                    break
+                case '现场测评授权书':
+
+
+                    if (!this.isDateInRange(this.form.xccpstartTime, this.form.xccpendTime, this.form.cpDate)) {
+                        this.$alert('现场测评授权书签署时间不能晚于现场测评时间和不早于现场测评结束时间!', '警告！', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+
+                            }
+                        });
+                        this.form.cpDate=''
+                    }
+                    break
+                case '原始扫漏记录':
+                    if (!this.isDateInRange1(this.form.xccpendTime, this.form.vulnerabilityRecordDate)) {
+                        this.$alert('原始扫漏记录不能晚于现场测评结束时间!', '警告！', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+                            }
+                        });
+                        this.form.vulnerabilityRecordDate = ''
+                    }
+                    break
+                case '渗透测试报告':
+                    if (!this.isDateInRange1(this.form.xccpendTime, this.form.penetrationReportDate)) {
+                        this.$alert('渗透测试报告不能晚于现场测评结束时间!', '警告！', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+                            }
+                        });
+                        this.form.penetrationReportDate = ''
+                    }
+                    break
+                case '信息安全等级保护测评服务情况评价表':
+                    if (!this.isDateInRange1(this.form.xccpendTime, this.form.evaluationFormDate)) {
+                        this.$alert('信息安全等级保护测评服务情况评价表签署时间不能晚于现场测评结束时间!', '警告！', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+                            }
+                        });
+                        this.form.evaluationFormDate = ''
+                    }
+                    break
+                case '测评项目现场见证记录':
+                    if (!this.isDateInRange(this.form.xccpstartTime, this.form.xccpendTime, this.form.sceneDate)) {
+                        this.$alert('测评项目现场见证记录签署时间不能晚于现场测评时间和不早于现场测评结束时间!', '警告！', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+
+                            }
+                        });
+                        this.form.sceneDate = ''
+                    }
+                    break
+                case '末次会议签到表':
+                    if (!this.isDateInRange2(this.form.lastMeetingDate, this.form.xccpendTime, this.form.sceneDate)) {
+                        this.$alert('末次会议签到表签署时间现场测评结束当天  必须等于结束时间!', '警告！', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+
+                            }
+                        });
+                        this.form.lastMeetingDate = ''
+                    }
+                    break
+                case '验证测试授权书':
+                    if (this.form.yzcsorizonDate) {
+                        if (!this.isDateInRange4(this.form.verificationAuthorizationDate, this.form.yzcsorizonDate[0])) {
+                            this.$alert('签署时间不能晚于授权时间的开始时间!', '警告！', {
+                                confirmButtonText: '确定',
+                                callback: action => {
+
+                                }
+                            });
+                            this.form.verificationAuthorizationDate = ''
+                        }
+
+                    } else {
+                        this.$alert('请先填写验证测试授权书授权时间范围!', '警告！', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+
+                            }
+                        });
+                        this.form.verificationAuthorizationDate = ''
+                    }
+
+                    break
+                case '等级测评方案':
+                    if (this.isDateInRange5(this.form.assessmentPlanDate, this.form.xccpstartTime)) {
+                        this.$alert('等级测评方案签署时间不能大于当天', '警告！', {
+                            confirmButtonText: '确定',
+                            callback: action => {
+
+                            }
+                        });
+                        this.form.assessmentPlanDate = ''
+                    }
+                    break
+
+
+
+                default:
+
+            }
             const item = this.fileUploadItems[index];
             const dateValue = this.form[item.dateModel];
             return
-            // if (this.downloadList.length > 0) {
-            //     this.downloadList.forEach(item => {
-            //         if (item.title === item.fileType) {
-            //             item.date = dateValue;
-            //         }
-            //     });
-            //     this.$forceUpdate();
-            // }
+
         },
         hasRiskNotice(downloadList, val) {
             return downloadList.some(item => item.title === val);
@@ -439,20 +786,34 @@ export default {
         removeRiskNotice(downloadList, val) {
             return downloadList.filter(item => item.title !== val);
         },
-        handleInput(index, val) {
+        handleInput(index, val, isPartyA = false) {
+            console.log(index, val)
             const item = this.fileUploadItems[index];
-            const inputValue = this.form[item.inputModel];
+            const inputKey = isPartyA ? `${item.inputModel}PartyA` : item.inputModel;
+            const inputValue = this.form[inputKey];
             const regex = /^[\u4e00-\u9fa5、]*$/;
             if (!regex.test(inputValue)) {
-                this.form[item.inputModel] = inputValue.replace(/[^\u4e00-\u9fa5、]/g, '');
+                this.form[inputKey] = inputValue.replace(/[^\u4e00-\u9fa5、]/g, '');
             } else {
                 const personToFiles = {};
 
                 // 遍历所有文件输入项，重新构建 personToFiles 映射
                 this.fileUploadItems.forEach(item => {
                     const input = this.form[item.inputModel];
+                    const inputPartyA = this.form[`${item.inputModel}PartyA`];
                     if (input) {
                         const persons = input.split('、');
+                        persons.forEach(person => {
+                            if (!personToFiles[person]) {
+                                personToFiles[person] = [];
+                            }
+                            if (!personToFiles[person].includes(item.fileType)) {
+                                personToFiles[person].push(item.fileType);
+                            }
+                        });
+                    }
+                    if (inputPartyA) {
+                        const persons = inputPartyA.split('、');
                         persons.forEach(person => {
                             if (!personToFiles[person]) {
                                 personToFiles[person] = [];
@@ -470,8 +831,110 @@ export default {
                     title: personToFiles[person].join('、')
                 }));
             }
+        },
+        isDateInRange(star, end, date) {
+            function getDateTimestamp(dateObj) {
+                return new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()).getTime();
+            }
+            const startDate = getDateTimestamp(new Date(star));
+            const endDate = getDateTimestamp(new Date(end));
+            const inputDate = getDateTimestamp(new Date(date));
+
+            return inputDate >= startDate && inputDate <= endDate;
+
+        },
+        isDateInRange1(end, date) {
+            function getDateTimestamp(dateObj) {
+                return new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()).getTime();
+            }
+            const endDate = getDateTimestamp(new Date(end));
+            const inputDate = getDateTimestamp(new Date(date));
+
+            return inputDate <= endDate;
+
+        },
+        isDateInRange2(end, date) {
+            function getDateTimestamp(dateObj) {
+                return new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()).getTime();
+            }
+            const endDate = getDateTimestamp(new Date(end));
+            const inputDate = getDateTimestamp(new Date(date));
+
+            return inputDate == endDate;
+
+        },
+        isDateInRange3(end, date) {
+            function getDateTimestamp(dateObj) {
+                return new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()).getTime();
+            }
+            const endDate = getDateTimestamp(new Date(end));
+            const inputDate = getDateTimestamp(new Date(date));
+
+            return inputDate == endDate;
+
+        },
+        isDateInRange4(end, date) {
+            function getDateTimestamp(dateObj) {
+                return new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()).getTime();
+            }
+            const endDate = getDateTimestamp(new Date(end));
+            const inputDate = getDateTimestamp(new Date(date));
+
+            return inputDate >= endDate;
+
+        },
+        isDateInRange5(end, date) {
+            function getDateTimestamp(dateObj) {
+                return new Date(dateObj.getFullYear(), dateObj.getMonth(), dateObj.getDate()).getTime();
+            }
+            const endDate = getDateTimestamp(new Date(end));
+            const inputDate = getDateTimestamp(new Date(date));
+
+            return inputDate < endDate;
+
+        },
+    },
+    watch: {
+        // 监听现场测评人员和报备人员的变化
+        'form.xccpuser': function (newVal, oldVal) {
+            this.showDispatchChangeForm = newVal === this.form.reportPerson;
+        },
+        'form.reportPerson': function (newVal, oldVal) {
+            this.showDispatchChangeForm = this.form.xccpuser === newVal;
         }
-    }
+    },
+    computed: {
+        // 过滤fileUploadItems数组
+        filteredFileUploadItems() {
+    const stxxAbandon = this.form.stxxradio == '1'||this.form.stxxradio == '3';  // 渗透测试放弃
+    const lssjAbandon = this.form.lssjradio == '1';  // 漏扫放弃
+    const bothAbandon = stxxAbandon && lssjAbandon;    // 两者都放弃
+
+    return this.fileUploadItems.filter(item => {
+      // 处理派工变更单的独立逻辑
+      if (item.fileType === '派工变更单') {
+        return this.form.xccpuser !== this.form.reportPerson;
+      }
+
+      // 处理渗透和漏扫相关的过滤
+      const isPenetrationReport = item.fileType === '渗透测试报告';
+      const isVulnerabilityRecord = item.fileType === '原始扫漏记录';
+      const isVerificationAuth = item.fileType === '验证测试授权书';
+      const isVerificationConfirm = item.fileType === '验证性测试入场离场确认单';
+
+      // 渗透放弃时过滤渗透报告
+      if (stxxAbandon && isPenetrationReport) return false;
+      
+      // 漏扫放弃时过滤原始记录
+      if (lssjAbandon && isVulnerabilityRecord) return false;
+      
+      // 两者都放弃时过滤验证相关文件
+      if (bothAbandon && (isVerificationAuth || isVerificationConfirm)) return false;
+
+      return true;
+    });
+  }
+    },
 };
 </script>
 
