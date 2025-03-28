@@ -103,7 +103,7 @@
 </template>
 <script>
 //   import { getOrgList } from "@/api/system/org.js";
-//   import { getInfoByTenantcode } from "@/api/user";
+  import { login } from "@/api/login";
 //   import { title } from "@/settings";
 import Cookies from "js-cookie";
 export default {
@@ -149,7 +149,7 @@ export default {
           code: [{ required: true, trigger: "change", message: "请输入验证码" }]
         },
         qrCodeUrl: "https://oapi.dingtalk.com/connect/qrconnect?appid=dingjzgedsmzjqhxucpj&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://erp.hbluoge.com/LoginAPI.aspx?",
-        loginTmpCode: null
+        loginTmpCode: 'CBABD143921F3A86A5ACF40E238932638787858562733670'
     };
   },
   watch: {
@@ -227,7 +227,10 @@ export default {
       //       });
       //   }
       // });
-      
+        login(this.loginTmpCode).then(res=>{
+          console.log(res)
+        })
+      return
       this.$store.dispatch("Login", this.loginTmpCode).then((res) => {
              console.log(res)
         return

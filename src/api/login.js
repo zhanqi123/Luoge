@@ -2,19 +2,17 @@ import request from '@/utils/request'
 
 // 登录方法
 export function login(Token) {
-  console.log(Token,'8888')
   const data = {
     Token:Token
-
   }
   return request({
-    url: '?login1',
-    headers: {
-      // isToken: false,
-      // repeatSubmit: false
+    url: 'login', // 拼接具体接口路径
+      headers: {
+      isToken: false,
+      repeatSubmit: false
     },
     method: 'post',
-    data: data
+     data: data
   })
 
   
@@ -30,7 +28,7 @@ export function login(Token) {
 // 注册方法
 export function register(data) {
   return request({
-    url: '/register',
+    url: 'register',
     headers: {
       isToken: false
     },
