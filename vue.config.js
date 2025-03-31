@@ -47,8 +47,10 @@ module.exports = {
       '/RequestInterface.aspx': {
         target: 'http://192.168.16.26:86',
         changeOrigin: true,
-        pathRewrite: { '^/api': '' }
-    }
+        pathRewrite: {
+          '^/RequestInterface.aspx': '/RequestInterface.aspx'
+        }
+      }
     },
     disableHostCheck: true
   },

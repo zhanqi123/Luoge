@@ -124,7 +124,7 @@ export default {
         ],
         code: [{ required: true, trigger: "change", message: "请输入验证码" }]
       },
-      qrCodeUrl: "https://oapi.dingtalk.com/connect/qrconnect?appid=dingjzgedsmzjqhxucpj&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://erp.hbluoge.com/LoginAPI.aspx?"+this.uuid,
+      qrCodeUrl: "https://oapi.dingtalk.com/connect/qrconnect?appid=dingjzgedsmzjqhxucpj&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://erp.hbluoge.com/LoginAPI.aspx?",
       loginTmpCode: '',
       uuid:'dad12212'
       // loginTmpCode:'D3E083A4EC3BADE4EB12DD562665C880638790265145102408'
@@ -225,9 +225,9 @@ export default {
     },
     initDingLogin() {
 
-      // this.qrCodeUrl=this.qrCodeUrl+this.uuid
+      this.qrCodeUrl=this.qrCodeUrl+this.uuid
 
-
+      console.log(this.qrCodeUrl)
       const obj = window.DDLogin({
         id: "login_container",
         goto: encodeURIComponent(this.qrCodeUrl),
