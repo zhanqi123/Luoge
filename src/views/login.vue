@@ -1,29 +1,11 @@
 <template>
   <div v-show="showPage" class="login-container">
     <!-- admin -->
-    <img
-      v-if="isAdmin"
-      src="@/assets/images/login_img/ope.png"
-      class="bg-img"
-      alt="qiyetupian"
-    
-    />
+    <img v-if="isAdmin" src="@/assets/images/login_img/ope.png" class="bg-img" alt="qiyetupian" />
     <!-- platform -->
-    <img
-      v-if="!isAdmin"
-      src="@/assets/images/login_img/apli.png"
-      class="bg-img"
-      alt="qiyetupian"
-     
-    />
-    <el-form
-      ref="loginForm"
-      :model="loginForm"
-      :rules="loginRules"
-      class="login-form"
-      auto-complete="on"
-      label-position="left"
-    >
+    <img v-if="!isAdmin" src="@/assets/images/login_img/apli.png" class="bg-img" alt="qiyetupian" />
+    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on"
+      label-position="left">
       <div class="title-container">
         <div class="title-greet">欢迎登录~</div>
         <div class="title">{{ title }}</div>
@@ -79,9 +61,7 @@
         @click.native.prevent="handleLogin"
         >登录</el-button
       > -->
-     <el-button
-        type="warning"
-        style="
+      <el-button type="warning" style="
           width: 20%;
           margin-top: 10%;
           padding: 10px 20px;
@@ -89,21 +69,17 @@
           position: absolute;
           top: -5%;
           z-index: 9999;
-          left: 3%;"
-        :loading="loading"
-        @click.native.prevent="handleLogin"
-        >登录</el-button
-      > 
+          left: 3%;" :loading="loading" @click.native.prevent="handleLogin">登录</el-button>
     </el-form>
-   
+
 
     <!-- <el-button type="primary" @click="handleScanQrCode">扫码登录</el-button> -->
-     
+
   </div>
 </template>
 <script>
 //   import { getOrgList } from "@/api/system/org.js";
-  import { login } from "@/api/login";
+import { login, loadGetAccessToken } from "@/api/login";
 //   import { title } from "@/settings";
 import Cookies from "js-cookie";
 export default {
@@ -117,7 +93,7 @@ export default {
       }
     };
     return {
-      isResetPwd:false, // 是否弹出重置密码
+      isResetPwd: false, // 是否弹出重置密码
       strength: 6, // 密码强度
       ruleForm: {
         password: "",
@@ -131,8 +107,8 @@ export default {
         password: "123456",
         // orgId: "",
       },
-   
-      title:'珞格科技发展档案管理系统',
+
+      title: '珞格科技发展档案管理系统',
       loading: false,
       passwordType: "password",
       redirect: undefined,
@@ -140,21 +116,23 @@ export default {
       orgOptions: [],
       bgImg: null, //自定义bg
       loginRules: {
-          username: [
-            { required: true, trigger: "blur", message: "请输入您的用户名" }
-          ],
-          password: [
-            { required: true, trigger: "blur", message: "请输入您的密码" }
-          ],
-          code: [{ required: true, trigger: "change", message: "请输入验证码" }]
-        },
-        qrCodeUrl: "https://oapi.dingtalk.com/connect/qrconnect?appid=dingjzgedsmzjqhxucpj&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://erp.hbluoge.com/LoginAPI.aspx?",
-        loginTmpCode: 'CBABD143921F3A86A5ACF40E238932638787858562733670'
+        username: [
+          { required: true, trigger: "blur", message: "请输入您的用户名" }
+        ],
+        password: [
+          { required: true, trigger: "blur", message: "请输入您的密码" }
+        ],
+        code: [{ required: true, trigger: "change", message: "请输入验证码" }]
+      },
+      qrCodeUrl: "https://oapi.dingtalk.com/connect/qrconnect?appid=dingjzgedsmzjqhxucpj&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://erp.hbluoge.com/LoginAPI.aspx?"+this.uuid,
+      loginTmpCode: '',
+      uuid:'dad12212'
+      // loginTmpCode:'D3E083A4EC3BADE4EB12DD562665C880638790265145102408'
     };
   },
   watch: {
-   
-    
+
+
   },
   created() {
     if (
@@ -181,7 +159,7 @@ export default {
     }
   },
   methods: {
- 
+
 
     showPwd() {
       if (this.passwordType === "password") {
@@ -193,119 +171,93 @@ export default {
         this.$refs.password.focus();
       });
     },
-    // handleResetPwd() {
-    //   sessionStorage.setItem("roleKey", this.$route.params.roleKey);
-    //   this.$router.push({
-    //     path: "/resetPwd",
-    //     query: {
-    //       tenantCode: this.$route.params.roleKey,
-    //     },
-    //   });
-    // },
+
     handleLogin() {
-      // this.$refs.loginForm.validate((valid) => {
-      //   if (valid) {
-      //     this.loading = true;
-      //     if (this.isAdmin) {
-      //       delete this.loginForm.orgId;
-      //       localStorage.setItem("navLogo", "");
-      //     }
-      //     const RsaLoginForm = {
-      //       ...this.loginForm,
-      //       password: this.$md5(this.loginForm.password),
-      //     };
-      //     this.$store
-      //       .dispatch("user/login", RsaLoginForm)
-      //       .then(() => {
-      //         this.$router.push({
-      //           path: "/",
-      //         });
-      //         this.loading = false;
-      //       })
-      //       .catch(() => {
-      //         this.loading = false;
-      //       });
-      //   }
-      // });
-        login(this.loginTmpCode).then(res=>{
-          console.log(res)
-        })
+
+
+       
+      login('dad12212').then(res => {
+        console.log(res)
+      })
       return
       this.$store.dispatch("Login", this.loginTmpCode).then((res) => {
-             console.log(res)
+        console.log(res)
         return
-              this.loading = true;
-              
-              this.$router.push({ path: this.redirect || "/" }).catch(()=>{});
-            }).catch(() => {
-              this.loading = false;
-              if (this.captchaEnabled) {
-                this.getCode();
-              }
-            });
-      
+        this.loading = true;
+
+        this.$router.push({ path: this.redirect || "/" }).catch(() => { });
+      }).catch(() => {
+        this.loading = false;
+        if (this.captchaEnabled) {
+          this.getCode();
+        }
+      });
+
       return
       this.$refs.loginForm.validate(valid => {
-          if (valid) {
-            this.loading = true;
-            if (this.loginForm.rememberMe) {
-              Cookies.set("username", this.loginForm.username, { expires: 30 });
-              Cookies.set("password", encrypt(this.loginForm.password), { expires: 30 });
-              Cookies.set('rememberMe', this.loginForm.rememberMe, { expires: 30 });
-            } else {
-              Cookies.remove("username");
-              Cookies.remove("password");
-              Cookies.remove('rememberMe');
-            }
-            this.$store.dispatch("Login", this.loginForm).then(() => {
-              this.loading = true;
-              
-              this.$router.push({ path: this.redirect || "/" }).catch(()=>{});
-            }).catch(() => {
-              this.loading = false;
-              if (this.captchaEnabled) {
-                this.getCode();
-              }
-            });
+        if (valid) {
+          this.loading = true;
+          if (this.loginForm.rememberMe) {
+            Cookies.set("username", this.loginForm.username, { expires: 30 });
+            Cookies.set("password", encrypt(this.loginForm.password), { expires: 30 });
+            Cookies.set('rememberMe', this.loginForm.rememberMe, { expires: 30 });
+          } else {
+            Cookies.remove("username");
+            Cookies.remove("password");
+            Cookies.remove('rememberMe');
           }
-        });
-      
+          this.$store.dispatch("Login", this.loginForm).then(() => {
+            this.loading = true;
+
+            this.$router.push({ path: this.redirect || "/" }).catch(() => { });
+          }).catch(() => {
+            this.loading = false;
+            if (this.captchaEnabled) {
+              this.getCode();
+            }
+          });
+        }
+      });
+
     },
     back() {
       this.isResetPwd = false
     },
     initDingLogin() {
-        const obj = window.DDLogin({
-          id: "login_container",
-          goto: encodeURIComponent(this.qrCodeUrl),
-          style: "border:none;background-color:#FFFFFF;  text-align: center;",
-          width: "300",
-          height: "400",
-          
-        });
-      },
-      handleDingMessage(event) {
-         
-        if (event.origin !== "https://login.dingtalk.com") return;
-        this.loginTmpCode = event.data;
-      
-        this.handleLogin();
-      },
-      handleLoginWithCode() {
 
-   
+      // this.qrCodeUrl=this.qrCodeUrl+this.uuid
+
+
+      const obj = window.DDLogin({
+        id: "login_container",
+        goto: encodeURIComponent(this.qrCodeUrl),
+        style: "border:none;background-color:#FFFFFF;  text-align: center;",
+        width: "300",
+        height: "400",
+
+      });
+    },
+    handleDingMessage(event) {
      
-        // 调用后端接口，携带loginTmpCode获取用户信息
-        this.$store.dispatch("login", { code: this.loginTmpCode })
-          .then(() => {
-            // this.$router.push({ path: '/' });
-          });
-      }
+      if (event.origin !== "https://login.dingtalk.com") return;
+      this.loginTmpCode = event.data;
+      console.log(this.loginTmpCode, '获取的钉钉号')
+
+      this.handleLogin();
+    },
+    // handleLoginWithCode() {
+    //   // 调用后端接口，携带loginTmpCode获取用户信息
+    //   this.$store.dispatch("login", { code: this.uuid })
+    //     .then(() => {
+    //       // this.$router.push({ path: '/' });
+    //     });
+    // },
+  
   },
   mounted() {
-      this.initDingLogin();
-      window.addEventListener('message', this.handleDingMessage);
-    },
+    this.initDingLogin();
+    window.addEventListener('message', this.handleDingMessage);
+  },
 };
 </script>
 <style lang="scss">
@@ -329,6 +281,7 @@ $cursor: #000;
   background-color: #3176FB;
   overflow: hidden;
   box-sizing: border-box;
+
   .bg-img {
     position: absolute;
     margin: auto;
@@ -369,13 +322,16 @@ $cursor: #000;
 .admin-login {
   background-image: url(~@/assets/images/login_img/ope.png);
   background-color: #3176FB;
-  background-color:  #3176FB;;
+  background-color: #3176FB;
+  ;
 }
 
 .apli-login {
   background-image: url(~@/assets/images/login_img/apli.png);
-  background-color: #3176FB;;
-  background-color:  #3176FB;;
+  background-color: #3176FB;
+  ;
+  background-color: #3176FB;
+  ;
   background-size: "contain";
 }
 </style>
@@ -384,7 +340,8 @@ $bg: #01367a;
 $dark_gray: #889aa4;
 $light_gray: #000;
 $color_primary: #356edf;
-.mask-box{
+
+.mask-box {
   position: fixed;
   top: 0;
   left: 0;
@@ -392,6 +349,7 @@ $color_primary: #356edf;
   bottom: 0;
   background-color: rgba(0, 0, 0, .5);
 }
+
 .reset-dialog {
   position: fixed;
   top: 50%;
@@ -401,6 +359,7 @@ $color_primary: #356edf;
   border-radius: 10px;
   background-color: #fff;
   width: 356px;
+
   .tips-title {
     font-size: 13px;
     color: rgb(255, 149, 2);
@@ -413,48 +372,59 @@ $color_primary: #356edf;
   ::v-deep .el-form-item {
     margin-bottom: 8px;
   }
+
   .new-password {
     border: 1px solid #f1f1f1;
     border-radius: 4px;
   }
+
   ul,
   li {
     padding: 0;
     margin: 0;
     list-style: none;
   }
+
   .bg-color {
     display: flex;
     align-items: center;
     margin-top: 18px;
+
     li {
       width: 42px;
       height: 8px;
       border: 1px solid #f9f9f9;
     }
+
     .hong {
       background-color: #f10000;
     }
+
     .cheng {
       background-color: rgb(255, 149, 2);
     }
+
     .huang {
       background-color: rgb(255, 255, 31);
     }
+
     .lv {
       background-color: rgb(118, 255, 54);
     }
+
     .qing {
       background-color: rgb(0, 226, 84);
     }
   }
-  ::v-deep .el-button{
+
+  ::v-deep .el-button {
     height: 30px;
     line-height: 0px;
     font-size: 14px;
 
   }
 }
+
 .login-container {
   position: relative;
 
@@ -472,17 +442,19 @@ $color_primary: #356edf;
     border-radius: 10px;
     min-height: 360px;
     // display: flex; 
-justify-content: center; 
-align-items: center; 
-.qrcode-container{
-  text-align: center;
-}
+    justify-content: center;
+    align-items: center;
+
+    .qrcode-container {
+      text-align: center;
+    }
+
     .form-input {
       ::v-deep .el-input input {
         border-bottom: solid 1px #a0a3aa;
         padding-right: 68px;
         font-size: 14px;
-        text-indent:5px;
+        text-indent: 5px;
         // text-indent: 16px;
       }
     }
@@ -545,6 +517,7 @@ align-items: center;
     cursor: pointer;
     user-select: none;
   }
+
   .password-error {
     color: red;
     font-size: 12px;

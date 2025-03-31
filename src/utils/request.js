@@ -15,7 +15,8 @@ axios.defaults.headers['Content-Type'] = 'application/json;charset=utf-8';
 // 创建axios实例
 const service = axios.create({
   // 修改为你的公用地址
-  baseURL: 'http://192.168.16.26:86/RequestInterface.aspx?',
+  baseURL: 'http://192.168.16.26:86',
+  // baseURL: process.env.VUE_APP_BASE_API,
   // 超时
   timeout: 10000
 });

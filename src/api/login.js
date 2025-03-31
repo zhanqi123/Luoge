@@ -6,7 +6,7 @@ export function login(Token) {
     Token:Token
   }
   return request({
-    url: '/login', // 拼接具体接口路径
+    url: '/RequestInterface.aspx?/login', // 拼接具体接口路径
       headers: {
       isToken: false,
       repeatSubmit: false
@@ -23,6 +23,24 @@ export function login(Token) {
   //   }
   //   resolve(data);
   // });
+}
+export function loadGetAccessToken(id) {
+    return request({
+    url: 'https://oapi.dingtalk.com/connect/qrconnect?appid=dingjzgedsmzjqhxucpj&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://erp.hbluoge.com/LoginAPI.aspx?'+id,
+    headers: {
+      isToken: false,
+      repeatSubmit: false
+    },
+    method: 'get'
+  })
+  // return request({
+  //   url: 'register',
+  //   headers: {
+  //     isToken: false
+  //   },
+  //   method: 'post',
+  //   data: data
+  // })
 }
 
 // 注册方法
