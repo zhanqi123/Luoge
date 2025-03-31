@@ -6,7 +6,7 @@ export function login(Token) {
     Token:Token
   }
   return request({
-    url: 'login', // 拼接具体接口路径
+    url: '/login', // 拼接具体接口路径
       headers: {
       isToken: false,
       repeatSubmit: false
