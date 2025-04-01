@@ -50,6 +50,11 @@ module.exports = {
         pathRewrite: {
           '^/RequestInterface.aspx': '/RequestInterface.aspx'
         }
+      },
+      '/dingtalk': {
+        target: 'https://oapi.dingtalk.com',
+        changeOrigin: true,
+        pathRewrite: { '^/dingtalk': '' }
       }
     },
     disableHostCheck: true

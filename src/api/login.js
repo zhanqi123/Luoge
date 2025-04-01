@@ -1,15 +1,15 @@
 import request from '@/utils/request'
 
 // 登录方法
-export function login(Token) {
-  const data = {
-    Token:Token
-  }
+export function login(data) {
+
   return request({
     url: '/RequestInterface.aspx?/login', // 拼接具体接口路径
       headers: {
       isToken: false,
-      repeatSubmit: false
+      repeatSubmit: false,
+      'Content-Type': 'multipart/form-data'
+      
     },
     method: 'post',
      data: data

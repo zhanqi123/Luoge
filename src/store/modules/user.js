@@ -21,6 +21,7 @@ const user = {
       state.id = id
     },
     SET_NAME: (state, name) => {
+
       state.name = name
     },
     SET_AVATAR: (state, avatar) => {
@@ -37,16 +38,26 @@ const user = {
   actions: {
     // 登录
     Login({ commit }, userInfo) {
-     
+    
       // const username = userInfo.username.trim()
       // const password = userInfo.password
       // const code = userInfo.code
+     
       const token = userInfo
+
       return new Promise((resolve, reject) => {
         login(token).then(res => {
-          console.log('888555')
-          setToken(res.token)
-          commit('SET_TOKEN', res.token)
+        
+          if(res.Data.length>0){
+            setToken(res.Data[0].StaffID)
+            console.log(res.Data[0].RealName,'测试最新')
+            commit('SET_TOKEN', res.Data[0].StaffID)
+            //      commit('SET_NAME', res.Data[0].RealName)
+            // // commit('SET_NAME', res.Data[0].RealName)
+          
+          }
+        
+        
           resolve()
         }).catch(error => {
           reject(error)
@@ -56,7 +67,8 @@ const user = {
 
     // 获取用户信息
     GetInfo({ commit, state }) {
-      return new Promise((resolve, reject) => {
+      
+            return new Promise((resolve, reject) => {
         getInfo().then(res => {
           const user = res.user
           let avatar = user.avatar || ""

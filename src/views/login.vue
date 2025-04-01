@@ -1,5 +1,25 @@
 <template>
+  
   <div v-show="showPage" class="login-container">
+      <!-- 全局加载蒙层 -->
+  <transition name="fade">
+    <div v-if="loading" class="login-loader">
+      <!-- 环形加载动画 -->
+      <div class="spinner-box">
+        <div class="spinner">
+          <div class="circle">
+            <div class="inner"></div>
+          </div>
+          <div class="text">登录中...</div>
+        </div>
+      </div>
+      
+      <!-- 进度条 -->
+      <div class="progress-bar">
+        <div class="progress" :style="{ width: progress + '%' }"></div>
+      </div>
+    </div>
+  </transition>
     <!-- admin -->
     <img v-if="isAdmin" src="@/assets/images/login_img/ope.png" class="bg-img" alt="qiyetupian" />
     <!-- platform -->
@@ -11,57 +31,8 @@
         <div class="title">{{ title }}</div>
       </div>
       <div id="login_container" class="qrcode-container"></div>
-      <!-- <el-form-item prop="username" class="form-input">
-        
-        <el-input
-          ref="username"
-          v-model="loginForm.username"
-          placeholder="请输入用户名"
-          name="username"
-          type="text"
-          tabindex="1"
-          auto-complete="on"
-          placeholder-style="color: #C3C3C3"
-          @keyup.enter.native="handleLogin"
-        >
      
-        <svg-icon slot="prefix" icon-class="user" class="el-input__icon input-icon" />
-        </el-input>
-      
-      </el-form-item>
-      <el-form-item prop="password" class="form-input">
-        <el-input
-          :key="passwordType"
-          ref="password"
-          v-model="loginForm.password"
-          :type="passwordType"
-          placeholder="密码"
-          name="password"
-          tabindex="2"
-          auto-complete="on"
-          placeholder-style="color: #C3C3C3"
-          @keyup.enter.native="handleLogin"
-        >
-        <svg-icon slot="prefix" icon-class="validCode" class="el-input__icon input-icon" />
-
-       
-        </el-input>
-      
-      </el-form-item>
-
-      <el-button
-        type="primary"
-        style="
-          width: 100%;
-          margin-top: 10%;
-          padding: 10px 20px;
-          font-size: 18px;
-        "
-        :loading="loading"
-        @click.native.prevent="handleLogin"
-        >登录</el-button
-      > -->
-      <el-button type="warning" style="
+      <!-- <el-button type="warning" style="
           width: 20%;
           margin-top: 10%;
           padding: 10px 20px;
@@ -69,38 +40,25 @@
           position: absolute;
           top: -5%;
           z-index: 9999;
-          left: 3%;" :loading="loading" @click.native.prevent="handleLogin">登录</el-button>
+          left: 3%;" :loading="loading" @click.native.prevent="handleLogin">登录</el-button> -->
     </el-form>
-
-
-    <!-- <el-button type="primary" @click="handleScanQrCode">扫码登录</el-button> -->
-
   </div>
 </template>
 <script>
-//   import { getOrgList } from "@/api/system/org.js";
-import { login, loadGetAccessToken } from "@/api/login";
-//   import { title } from "@/settings";
-import Cookies from "js-cookie";
+
 export default {
   name: "Login",
   data() {
-    var checkPassWord = (rule, value, callback) => {
-      if (value === "") {
-        callback(new Error("请输入新密码！"));
-      } else {
-        callback();
-      }
-    };
+
     return {
+      progress: 0,
+      interval: null,
       isResetPwd: false, // 是否弹出重置密码
       strength: 6, // 密码强度
       ruleForm: {
         password: "",
       },
-      rules: {
-        password: [{ validator: checkPassWord, trigger: "blur" }],
-      },
+ 
       showPage: false,
       loginForm: {
         username: "admin",
@@ -110,7 +68,7 @@ export default {
 
       title: '珞格科技发展档案管理系统',
       loading: false,
-      passwordType: "password",
+
       redirect: undefined,
       isAdmin: false,
       orgOptions: [],
@@ -159,75 +117,40 @@ export default {
     }
   },
   methods: {
-
-
-    showPwd() {
-      if (this.passwordType === "password") {
-        this.passwordType = "";
-      } else {
-        this.passwordType = "password";
-      }
-      this.$nextTick(() => {
-        this.$refs.password.focus();
-      });
-    },
-
     handleLogin() {
-
-
-       
-      login('dad12212').then(res => {
-        console.log(res)
-      })
-      return
-      this.$store.dispatch("Login", this.loginTmpCode).then((res) => {
-        console.log(res)
-        return
-        this.loading = true;
-
-        this.$router.push({ path: this.redirect || "/" }).catch(() => { });
+     let  formData =new FormData();
+     this.loading = true
+     formData.append('Token','dad12212');
+     this.$store.dispatch("Login", formData).then((res) => {
+      this.startProgress()
+      setTimeout(() => {
+        this.$router.push({ path: this.redirect || "/" })
+          .finally(() => {
+            this.loading = false
+            clearInterval(this.interval)
+          })
+      }, 800)
       }).catch(() => {
         this.loading = false;
         if (this.captchaEnabled) {
           this.getCode();
         }
+        this.$message.warning('登录失败,请重新钉钉扫码登录')
+        // 登录失败，重新初始化钉钉登录
+        this.initDingLogin();
       });
-
-      return
-      this.$refs.loginForm.validate(valid => {
-        if (valid) {
-          this.loading = true;
-          if (this.loginForm.rememberMe) {
-            Cookies.set("username", this.loginForm.username, { expires: 30 });
-            Cookies.set("password", encrypt(this.loginForm.password), { expires: 30 });
-            Cookies.set('rememberMe', this.loginForm.rememberMe, { expires: 30 });
-          } else {
-            Cookies.remove("username");
-            Cookies.remove("password");
-            Cookies.remove('rememberMe');
-          }
-          this.$store.dispatch("Login", this.loginForm).then(() => {
-            this.loading = true;
-
-            this.$router.push({ path: this.redirect || "/" }).catch(() => { });
-          }).catch(() => {
-            this.loading = false;
-            if (this.captchaEnabled) {
-              this.getCode();
-            }
-          });
+    },
+    startProgress() {
+      this.interval = setInterval(() => {
+        if(this.progress < 95) {
+          this.progress += Math.random() * 15
         }
-      });
-
+      }, 200)
     },
-    back() {
-      this.isResetPwd = false
-    },
+  
     initDingLogin() {
-
       this.qrCodeUrl=this.qrCodeUrl+this.uuid
-
-      console.log(this.qrCodeUrl)
+   
       const obj = window.DDLogin({
         id: "login_container",
         goto: encodeURIComponent(this.qrCodeUrl),
@@ -238,20 +161,11 @@ export default {
       });
     },
     handleDingMessage(event) {
-     
       if (event.origin !== "https://login.dingtalk.com") return;
       this.loginTmpCode = event.data;
-      console.log(this.loginTmpCode, '获取的钉钉号')
-
       this.handleLogin();
     },
-    // handleLoginWithCode() {
-    //   // 调用后端接口，携带loginTmpCode获取用户信息
-    //   this.$store.dispatch("login", { code: this.uuid })
-    //     .then(() => {
-    //       // this.$router.push({ path: '/' });
-    //     });
-    // },
+
   
   },
   mounted() {
@@ -523,4 +437,123 @@ $color_primary: #356edf;
     font-size: 12px;
   }
 }
-</style>
+/* 按钮动画 */
+.el-button {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  
+  &.loading {
+    transform: scale(0.95);
+    background: #3176FB !important;
+    padding-right: 45px;
+    
+    .btn-text {
+      opacity: 0.8;
+    }
+  }
+}
+
+.btn-loader {
+  position: absolute;
+  right: 15px;
+  width: 20px;
+  height: 20px;
+  border: 2px solid rgba(255,255,255,0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* 全局加载动画 */
+.login-loader {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255,255,255,0.96);
+  z-index: 9999;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner-box {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  
+  .spinner {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    .circle {
+      width: 180px;
+      height: 80px;
+      border-radius: 50%;
+      position: relative;
+      animation: rotate 2s linear infinite;
+      .inner {
+        position: absolute;
+        width: 64px;
+        height: 64px;
+        top: 8px;
+        left: 8px;
+        background: #3176FB;
+        border-radius: 50%;
+        animation: pulse 1.5s ease-in-out infinite;
+      }
+    }
+    
+    .text {
+      position: absolute;
+      bottom: -30px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: #3176FB;
+      font-size: 14px;
+      letter-spacing: 2px;
+    }
+  }
+}
+
+/* 进度条动画 */
+.progress-bar {
+  width: 200px;
+  height: 4px;
+  background: rgba(49,118,251,0.2);
+  margin-top: 40px;
+  border-radius: 2px;
+  overflow: hidden;
+  
+  .progress {
+    height: 100%;
+    background: #3176FB;
+    transition: width 0.3s ease-out;
+  }
+}
+
+/* 动画关键帧 */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes rotate {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.95); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(0.95); }
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: opacity 0.3s;
+}
+.fade-enter, .fade-leave-to {
+  opacity: 0;
+}
+</style>    
