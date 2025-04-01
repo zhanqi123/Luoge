@@ -1,25 +1,25 @@
 <template>
-  
+
   <div v-show="showPage" class="login-container">
-      <!-- 全局加载蒙层 -->
-  <transition name="fade">
-    <div v-if="loading" class="login-loader">
-      <!-- 环形加载动画 -->
-      <div class="spinner-box">
-        <div class="spinner">
-          <div class="circle">
-            <div class="inner"></div>
+    <!-- 全局加载蒙层 -->
+    <transition name="fade">
+      <div v-if="loading" class="login-loader">
+        <!-- 环形加载动画 -->
+        <div class="spinner-box">
+          <div class="spinner">
+            <div class="circle">
+              <div class="inner"></div>
+            </div>
+            <div class="text">登录中...</div>
           </div>
-          <div class="text">登录中...</div>
+        </div>
+
+        <!-- 进度条 -->
+        <div class="progress-bar">
+          <div class="progress" :style="{ width: progress + '%' }"></div>
         </div>
       </div>
-      
-      <!-- 进度条 -->
-      <div class="progress-bar">
-        <div class="progress" :style="{ width: progress + '%' }"></div>
-      </div>
-    </div>
-  </transition>
+    </transition>
     <!-- admin -->
     <img v-if="isAdmin" src="@/assets/images/login_img/ope.png" class="bg-img" alt="qiyetupian" />
     <!-- platform -->
@@ -31,8 +31,8 @@
         <div class="title">{{ title }}</div>
       </div>
       <div id="login_container" class="qrcode-container"></div>
-     
-      <!-- <el-button type="warning" style="
+
+      <el-button type="warning" style="
           width: 20%;
           margin-top: 10%;
           padding: 10px 20px;
@@ -40,12 +40,12 @@
           position: absolute;
           top: -5%;
           z-index: 9999;
-          left: 3%;" :loading="loading" @click.native.prevent="handleLogin">登录</el-button> -->
+          left: 3%;" :loading="loading" @click.native.prevent="test()">测试</el-button>
     </el-form>
   </div>
 </template>
 <script>
-
+// import { testlogin } from '@/api/login'
 export default {
   name: "Login",
   data() {
@@ -58,12 +58,13 @@ export default {
       ruleForm: {
         password: "",
       },
- 
+
       showPage: false,
       loginForm: {
         username: "admin",
         password: "123456",
         // orgId: "",
+        
       },
 
       title: '珞格科技发展档案管理系统',
@@ -82,15 +83,17 @@ export default {
         ],
         code: [{ required: true, trigger: "change", message: "请输入验证码" }]
       },
-      qrCodeUrl: "https://oapi.dingtalk.com/connect/qrconnect?appid=dingjzgedsmzjqhxucpj&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://erp.hbluoge.com/LoginAPI.aspx?",
+      qrCodeUrl: "" ,
       loginTmpCode: '',
-      uuid:'dad12212'
-      // loginTmpCode:'D3E083A4EC3BADE4EB12DD562665C880638790265145102408'
+      url:'https://oapi.dingtalk.com/connect/qrconnect?appid=dingjzgedsmzjqhxucpj&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=' + encodeURIComponent('https://erp.hbluoge.com/LoginAPI.aspx?'),
+      // url:'https://oapi.dingtalk.com/connect/qrconnect?appid=dingjzgedsmzjqhxucpj&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://erp.hbluoge.com/LoginAPI.aspx?',
+      // uuid: 'DA' + Date.now() + Math.random().toString(36).substr(2), // 动态生成
+      uuid: 'DA' + Date.now() + Math.random().toString(36).substr(2), // 动态生成
+      // uuid:'dad12212'
+
     };
   },
   watch: {
-
-
   },
   created() {
     if (
@@ -118,18 +121,18 @@ export default {
   },
   methods: {
     handleLogin() {
-     let  formData =new FormData();
-     this.loading = true
-     formData.append('Token','dad12212');
-     this.$store.dispatch("Login", formData).then((res) => {
-      this.startProgress()
-      setTimeout(() => {
-        this.$router.push({ path: this.redirect || "/" })
-          .finally(() => {
-            this.loading = false
-            clearInterval(this.interval)
-          })
-      }, 800)
+      let formData = new FormData();
+      this.loading = true
+      formData.append('Token', this.uuid);
+      this.$store.dispatch("Login", formData).then((res) => {
+        this.startProgress()
+        setTimeout(() => {
+          this.$router.push({ path: this.redirect || "/" })
+            .finally(() => {
+              this.loading = false
+              clearInterval(this.interval)
+            })
+        }, 800)
       }).catch(() => {
         this.loading = false;
         if (this.captchaEnabled) {
@@ -140,17 +143,48 @@ export default {
         this.initDingLogin();
       });
     },
+    test() {
+      // this.qrCodeUrl=this.qrCodeUrl+this.uuid
+      // console.log(this.qrCodeUrl)
+      let formData = new FormData();
+      formData.append('Name', '占琦');
+      this.$store.dispatch("testLogin", formData).then((res) => {
+        this.startProgress()
+        setTimeout(() => {
+          this.$router.push({ path: this.redirect || "/" })
+            .finally(() => {
+              this.loading = false
+              clearInterval(this.interval)
+            })
+        }, 800)
+      }).catch(() => {
+        this.loading = false;
+        if (this.captchaEnabled) {
+          this.getCode();
+        }
+        this.$message.warning('登录失败,请重新钉钉扫码登录')
+        // 登录失败，重新初始化钉钉登录
+        this.initDingLogin();
+      });
+
+      return
+      testlogin(formData).then(res=>{
+        console.log(res)
+      })
+      return
+      window.open(this.qrCodeUrl, "_blank");
+    },
     startProgress() {
       this.interval = setInterval(() => {
-        if(this.progress < 95) {
+        if (this.progress < 95) {
           this.progress += Math.random() * 15
         }
       }, 200)
     },
-  
+
     initDingLogin() {
-      this.qrCodeUrl=this.qrCodeUrl+this.uuid
-   
+      // this.qrCodeUrl = this.qrCodeUrl + this.uuid
+      // console.log(this.qrCodeUrl)
       const obj = window.DDLogin({
         id: "login_container",
         goto: encodeURIComponent(this.qrCodeUrl),
@@ -166,12 +200,17 @@ export default {
       this.handleLogin();
     },
 
-  
+
   },
   mounted() {
+    this.qrCodeUrl=this.url+this.uuid
     this.initDingLogin();
-    window.addEventListener('message', this.handleDingMessage);
+    window.addEventListener('message', this.handleDingMessage)
   },
+  
+  beforeDestroy() { // 组件销毁时移除监听
+  window.removeEventListener('message', this.handleDingMessage)
+},
 };
 </script>
 <style lang="scss">
@@ -437,15 +476,16 @@ $color_primary: #356edf;
     font-size: 12px;
   }
 }
+
 /* 按钮动画 */
 .el-button {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  
+
   &.loading {
     transform: scale(0.95);
     background: #3176FB !important;
     padding-right: 45px;
-    
+
     .btn-text {
       opacity: 0.8;
     }
@@ -457,7 +497,7 @@ $color_primary: #356edf;
   right: 15px;
   width: 20px;
   height: 20px;
-  border: 2px solid rgba(255,255,255,0.3);
+  border: 2px solid rgba(255, 255, 255, 0.3);
   border-top-color: #fff;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -470,7 +510,7 @@ $color_primary: #356edf;
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(255,255,255,0.96);
+  background: rgba(255, 255, 255, 0.96);
   z-index: 9999;
   display: flex;
   flex-direction: column;
@@ -482,18 +522,20 @@ $color_primary: #356edf;
   position: relative;
   width: 120px;
   height: 120px;
-  
+
   .spinner {
     position: absolute;
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+
     .circle {
       width: 180px;
       height: 80px;
       border-radius: 50%;
       position: relative;
       animation: rotate 2s linear infinite;
+
       .inner {
         position: absolute;
         width: 64px;
@@ -505,7 +547,7 @@ $color_primary: #356edf;
         animation: pulse 1.5s ease-in-out infinite;
       }
     }
-    
+
     .text {
       position: absolute;
       bottom: -30px;
@@ -522,11 +564,11 @@ $color_primary: #356edf;
 .progress-bar {
   width: 200px;
   height: 4px;
-  background: rgba(49,118,251,0.2);
+  background: rgba(49, 118, 251, 0.2);
   margin-top: 40px;
   border-radius: 2px;
   overflow: hidden;
-  
+
   .progress {
     height: 100%;
     background: #3176FB;
@@ -536,24 +578,42 @@ $color_primary: #356edf;
 
 /* 动画关键帧 */
 @keyframes spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes rotate {
-  from { transform: rotate(0deg); }
-  to { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 @keyframes pulse {
-  0% { transform: scale(0.95); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(0.95); }
+  0% {
+    transform: scale(0.95);
+  }
+
+  50% {
+    transform: scale(1.05);
+  }
+
+  100% {
+    transform: scale(0.95);
+  }
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s;
 }
-.fade-enter, .fade-leave-to {
+
+.fade-enter,
+.fade-leave-to {
   opacity: 0;
 }
-</style>    
+</style>

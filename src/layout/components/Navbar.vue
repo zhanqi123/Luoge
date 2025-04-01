@@ -7,7 +7,7 @@
     <top-nav v-if="topNav" id="topmenu-container" class="topmenu-container" />
 
     <div class="right-menu">
-      <div class="title-name">{{ this.$store.state.user.name }}</div>
+      <div class="title-name">{{ this.userName }}</div>
       <!-- <template v-if="device!=='mobile'">
         <search id="header-search" class="right-menu-item" />
 
@@ -56,6 +56,7 @@ import SizeSelect from '@/components/SizeSelect'
 import Search from '@/components/HeaderSearch'
 import RuoYiGit from '@/components/RuoYi/Git'
 import RuoYiDoc from '@/components/RuoYi/Doc'
+import { create } from 'sortablejs'
 
 export default {
   components: {
@@ -67,6 +68,11 @@ export default {
     Search,
     RuoYiGit,
     RuoYiDoc
+  },
+  data() {
+    return {
+     userName:''
+    };
   },
   computed: {
     ...mapGetters([
@@ -89,6 +95,12 @@ export default {
       get() {
         return this.$store.state.settings.topNav
       }
+    }
+  },
+  created(){
+ 
+    if(localStorage.getItem('name')){
+      this.userName=localStorage.getItem('name')
     }
   },
   methods: {
@@ -161,7 +173,7 @@ export default {
       display: inline-block;
       color:#67C23A;
       position: relative;
-      font-weight: 600
+      // font-weight: 600
     }
 
     &:focus {

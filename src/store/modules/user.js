@@ -1,4 +1,4 @@
-import { login, logout, getInfo } from '@/api/login'
+import { login, testlogin,logout, getInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 import { isHttp, isEmpty } from "@/utils/validate"
 // import defAva from '@/assets/images/profile.jpg'
@@ -12,6 +12,7 @@ const user = {
     roles: [],
     permissions: []
   },
+
 
   mutations: {
     SET_TOKEN: (state, token) => {
@@ -32,26 +33,26 @@ const user = {
     },
     SET_PERMISSIONS: (state, permissions) => {
       state.permissions = permissions
+    },
+    SET_USERNAME: (state, username) => {
+      state.username = username; // 设置用户名
     }
   },
 
   actions: {
     // 登录
     Login({ commit }, userInfo) {
-    
       // const username = userInfo.username.trim()
       // const password = userInfo.password
       // const code = userInfo.code
-     
       const token = userInfo
-
       return new Promise((resolve, reject) => {
         login(token).then(res => {
-        
           if(res.Data.length>0){
             setToken(res.Data[0].StaffID)
-            console.log(res.Data[0].RealName,'测试最新')
             commit('SET_TOKEN', res.Data[0].StaffID)
+             commit('SET_NAME',res.Data[0].RealName)
+             localStorage.setItem('name', res.Data[0].RealName); // 保存到 localStorage
             //      commit('SET_NAME', res.Data[0].RealName)
             // // commit('SET_NAME', res.Data[0].RealName)
           
@@ -64,12 +65,38 @@ const user = {
         })
       })
     },
-
+    //测试登录
+    testLogin({ commit }, userInfo) {
+      // const username = userInfo.username.trim()
+      // const password = userInfo.password
+      // const code = userInfo.code
+      const token = userInfo
+      return new Promise((resolve, reject) => {
+        testlogin(token).then(res => {
+          if(res.Data.length>0){
+            setToken(res.Data[0].StaffID)
+            commit('SET_TOKEN', res.Data[0].StaffID)
+             commit('SET_NAME',res.Data[0].RealName)
+             localStorage.setItem('name', res.Data[0].RealName); // 保存到 localStorage
+            //      commit('SET_NAME', res.Data[0].RealName)
+            // // commit('SET_NAME', res.Data[0].RealName)
+          
+          }
+        
+        
+          resolve()
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
     // 获取用户信息
     GetInfo({ commit, state }) {
-      
+        
+         
             return new Promise((resolve, reject) => {
         getInfo().then(res => {
+          
           const user = res.user
           let avatar = user.avatar || ""
           if (!isHttp(avatar)) {
@@ -82,7 +109,10 @@ const user = {
             commit('SET_ROLES', ['ROLE_DEFAULT'])
           }
           commit('SET_ID', user.userId)
-          commit('SET_NAME', user.userName)
+          const { name } = state;
+ 
+          // commit('SET_NAME', user.userName)
+          commit('SET_NAME', name)
           commit('SET_AVATAR', avatar)
           resolve(res)
         }).catch(error => {
@@ -116,6 +146,8 @@ const user = {
     FedLogOut({ commit }) {
       return new Promise(resolve => {
         commit('SET_TOKEN', '')
+        localStorage.removeItem('name'); // 退出时移除
+
         removeToken()
         resolve()
       })

@@ -164,35 +164,35 @@ export const getRouters = () => {
             //         // }
             //     ]
             // },
-            {
-              "name": "User",
-              "path": "/user",
-              "hidden": false,
-              "redirect": "noRedirect",
-              "component": "Layout",
-              "alwaysShow": true,
-              "meta": {
-                  "title": "用户管理",
-                  "icon": "system",
-                  "noCache": false,
-                  "link": null
-              },
-              "children": [
-                  {
-                      "name": "userIndex",
-                      "path": "userIndex",
-                      "hidden": false,
-                      "component": "user/index",
-                      "meta": {
-                          "title": "用户列表",
-                          "icon": "user",
-                          "noCache": false,
-                          "link": null
-                      }
-                  }
+        //     {
+        //       "name": "User",
+        //       "path": "/user",
+        //       "hidden": false,
+        //       "redirect": "noRedirect",
+        //       "component": "Layout",
+        //       "alwaysShow": true,
+        //       "meta": {
+        //           "title": "用户管理",
+        //           "icon": "system",
+        //           "noCache": false,
+        //           "link": null
+        //       },
+        //       "children": [
+        //           {
+        //               "name": "userIndex",
+        //               "path": "userIndex",
+        //               "hidden": false,
+        //               "component": "user/index",
+        //               "meta": {
+        //                   "title": "用户列表",
+        //                   "icon": "user",
+        //                   "noCache": false,
+        //                   "link": null
+        //               }
+        //           }
                 
-              ]
-          },
+        //       ]
+        //   },
           {
             "name": "record",
             "path": "/record",
@@ -208,13 +208,49 @@ export const getRouters = () => {
             },
             "children": [
                 {
-                    "name": "recordIndex",
-                    "path": "recordIndex",
+                    "name": "courseSubmit",
+                    "path": "courseSubmit",
                     "hidden": false,
-                    "component": "record/index",
+                    "component": "record/courseSubmit",
                     "meta": {
-                        "title": "过程文件管理",
-                        "icon": "monitor",
+                        "title": "过程文件提交",
+                        "icon": "edit",
+                        "noCache": false,
+                        "link": null
+                    }
+                },
+                {
+                    "name": "courseAudit",
+                    "path": "courseAudit",
+                    "hidden": false,
+                    "component": "record/courseAudit",
+                    "meta": {
+                        "title": "过程文件审核",
+                        "icon": "education",
+                        "noCache": false,
+                        "link": null
+                    }
+                },
+                {
+                    "name": "warehouseSubmit",
+                    "path": "warehouseSubmit",
+                    "hidden": false,
+                    "component": "record/warehouseSubmit",
+                    "meta": {
+                        "title": "档案入库提交",
+                        "icon": "log",
+                        "noCache": false,
+                        "link": null
+                    }
+                },
+                {
+                    "name": "warehouse",
+                    "path": "warehouse",
+                    "hidden": false,
+                    "component": "record/warehouse",
+                    "meta": {
+                        "title": "档案入库",
+                        "icon": "form",
                         "noCache": false,
                         "link": null
                     }
@@ -231,7 +267,7 @@ export const getRouters = () => {
             "alwaysShow": true,
             "meta": {
                 "title": "台账管理",
-                "icon": "system",
+                "icon": "redis-list",
                 "noCache": false,
                 "link": null
             },
