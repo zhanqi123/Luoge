@@ -137,6 +137,7 @@
   </template>
   
   <script>
+  import { initList } from '@/api/record'
   export default {
     name: "StandingIndex",
     data() {
@@ -273,6 +274,22 @@
     },
     methods: {
       getList() {
+        let formData = new FormData();
+      formData = {
+        voidid: 800,
+        state: '待归档',
+        showothersys: 1
+      }
+      
+      initList(formData).then(res => {
+        console.log(res,'555')
+        if (res.data.Data.length > 0) {
+          this.originalTableData = res.data.Data;
+          this.total = this.originalTableData.length;
+          this.setCurrentTableData();
+        }
+      });
+        return
         this.loading = true;
         this.total = this.tableData.length;
         this.loading = false;

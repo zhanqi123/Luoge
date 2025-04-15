@@ -52,6 +52,11 @@ export const constantRoutes = [
     hidden: true
   },
   {
+    path: '/courseForm',
+    component: () => import('@/views/courseForm'),
+    hidden: true
+  },
+  {
     path: '/404',
     component: () => import('@/views/error/404'),
     hidden: true
@@ -121,16 +126,30 @@ export const dynamicRoutes = [
     ]
   },
   {
-    path: '/system/role-auth',
+    path: '/system/user-auth',
     component: Layout,
     hidden: true,
     permissions: ['system:role:edit'],
     children: [
       {
-        path: 'user/:roleId(\\d+)',
-        component: () => import('@/views/system/role/authUser'),
+        path: 'addRole/:userId(\\d+)',
+        component: () => import('@/views/system/user/addRole'),
         name: 'AuthUser',
-        meta: { title: '分配用户', activeMenu: '/system/role' }
+        meta: { title: '分配用户', activeMenu: '/system/user' }
+      }
+    ]
+  },
+  {
+    path: '/system/user/addRole',
+    component: Layout,
+    hidden: true,
+
+    children: [
+      {
+        path: '/system/user/addRole',
+        component: () => import('@/views/system/user/addRole'),
+        name: 'addRole',
+        meta: { title: '分配用户', activeMenu: '/system/user/addRole' }
       }
     ]
   },

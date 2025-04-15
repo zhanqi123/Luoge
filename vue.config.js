@@ -51,11 +51,26 @@ module.exports = {
           '^/RequestInterface.aspx': '/RequestInterface.aspx'
         }
       },
+      '/LocalRequestInterface.aspx': {
+        target: 'http://192.168.16.26:86',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/LocalRequestInterface.aspx': '/LocalRequestInterface.aspx'
+        }
+      },
       '/dingtalk': {
         target: 'https://oapi.dingtalk.com',
         changeOrigin: true,
         pathRewrite: { '^/dingtalk': '' }
-      }
+      },
+      '/api': {
+        target: 'https://oapi.dingtalk.com',
+        changeOrigin: true,
+        pathRewrite: {
+            '^/api': ''
+        }
+    }
+   
     },
     disableHostCheck: true
   },
@@ -67,10 +82,11 @@ module.exports = {
     }
   },
   configureWebpack: {
+    
     name: name,
     resolve: {
       alias: {
-        '@': resolve('src')
+        // '@': resolve('src')
       }
     },
     plugins: [

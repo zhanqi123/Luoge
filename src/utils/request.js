@@ -6,6 +6,7 @@ import errorCode from '@/utils/errorCode';
 import { tansParams, blobValidate } from "@/utils/ruoyi";
 import cache from '@/plugins/cache';
 import { saveAs } from 'file-saver';
+import { mapGetters } from 'vuex'
 
 let downloadLoadingInstance;
 // 是否显示重新登录
@@ -18,8 +19,9 @@ const service = axios.create({
   // baseURL: 'http://192.168.16.26:86',
   baseURL: process.env.VUE_APP_BASE_API,
   // 超时
-  timeout: 10000
+  timeout: 800000
 });
+
 
 // request拦截器
 service.interceptors.request.use(config => {
@@ -61,7 +63,7 @@ service.interceptors.request.use(config => {
       const s_url = sessionObj.url;                  // 请求地址
       const s_data = sessionObj.data;                // 请求数据
       const s_time = sessionObj.time;                // 请求时间
-      const interval = 1000;                         // 间隔时间(ms)，小于此时间视为重复提交
+      const interval = 200;                         // 间隔时间(ms)，小于此时间视为重复提交
       if (s_data === requestObj.data && requestObj.time - s_time < interval && s_url === requestObj.url) {
         const message = '数据正在处理，请勿重复提交';
         console.warn(`[${s_url}]: ` + message);
@@ -79,6 +81,20 @@ service.interceptors.request.use(config => {
 
 // 响应拦截器
 service.interceptors.response.use(res => {
+    
+    if(res.data.ErrorInfo=='未登陆'){
+
+      MessageBox.confirm('登录状态已过期，您可以继续留在该页面，或者重新登录', '系统提示', { confirmButtonText: '重新登录', cancelButtonText: '取消', type: 'warning' }).then(() => {
+        isRelogin.show = false;
+        store.dispatch('FedLogOut').then(() => {
+          location.href = '/index'
+        })
+      }).catch(() => {
+        isRelogin.show = false;
+      })
+      return
+  
+    }
   // 未设置状态码则默认成功状态
   const code = res.data.code || 200;
   // 获取错误信息
@@ -87,6 +103,7 @@ service.interceptors.response.use(res => {
   if (res.request.responseType ===  'blob' || res.request.responseType ===  'arraybuffer') {
     return res.data;
   }
+
   if (code === 401) {
     if (!isRelogin.show) {
       isRelogin.show = true;
@@ -109,7 +126,9 @@ service.interceptors.response.use(res => {
   } else if (code !== 200) {
     Notification.error({ title: msg });
     return Promise.reject('error');
-  } else {
+  } 
+ 
+  else {
     return res.data;
   }
 },

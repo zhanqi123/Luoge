@@ -12,7 +12,7 @@
                     <el-descriptions-item label="备案编号">F55DA5546812DJIOL</el-descriptions-item>
                     <el-descriptions-item label="系统编号">F55DA5546812DJIOL1188</el-descriptions-item>
                     <el-descriptions-item label="系统名称">安全支付系统</el-descriptions-item>
-                    <el-descriptions-item label="报告编号">87486868668</el-descriptions-item>
+                    <el-descriptions-item label="测评组人员">张三、李四</el-descriptions-item>
                 </el-descriptions>
             </el-card>
 

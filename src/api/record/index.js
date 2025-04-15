@@ -6,8 +6,7 @@ export function initList(data) {
   return request({
     url: '/RequestInterface.aspx?/request', // 拼接具体接口路径
       headers: {
-    //   isToken: false,
-    //   repeatSubmit: false,
+
       'Content-Type': 'multipart/form-data'
     },
     method: 'post',

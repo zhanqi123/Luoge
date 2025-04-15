@@ -89,7 +89,6 @@
 </template>
 
 <script>
-import { initList } from "@/api/record.js";
 export default {
   name: "recordIndex",
   data() {
@@ -203,10 +202,7 @@ export default {
       // 查询参数
       queryParams: {
         pageNum: 1,
-        pageSize: 10,
-        noticeTitle: undefined,
-        createBy: undefined,
-        status: undefined
+        pageSize: 10
       },
       // 表单参数
       form: {},
@@ -226,18 +222,9 @@ export default {
   },
   methods: {
     getList() {
-      let formData =new FormData();
-      formData={
-        voidid:'800'
-      }
-      console.log(formData)
-    
-      initList(formData).then(res=>{
-        console.log(res,'555')
-      })
-      // this.loading = true;
-      // this.total = this.tableData.length;
-      // this.loading = false;
+      this.loading = true;
+      this.total = this.tableData.length;
+      this.loading = false;
     },
     // 取消按钮
     cancel() {

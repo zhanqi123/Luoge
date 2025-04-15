@@ -2,7 +2,7 @@ import request from '@/utils/request'
 export function initList(data) {
    
   return request({
-    url: '/RequestInterface.aspx?/request', // 拼接具体接口路径
+    url: '/request', // 拼接具体接口路径
       headers: {
       isToken: false,
       repeatSubmit: false,
@@ -17,7 +17,7 @@ export function initList(data) {
 export function testlogin(data) {
 
   return request({
-    url: '/RequestInterface.aspx?/testlogin', // 拼接具体接口路径
+    url: '/testlogin', // 拼接具体接口路径
       headers: {
       isToken: false,
       repeatSubmit: false,
@@ -32,7 +32,7 @@ export function testlogin(data) {
 export function login(data) {
 
   return request({
-    url: '/RequestInterface.aspx?/login', // 拼接具体接口路径
+    url: '/login', // 拼接具体接口路径
       headers: {
       isToken: false,
       repeatSubmit: false,
@@ -43,14 +43,6 @@ export function login(data) {
      data: data
   })
 
-  
-  // return new Promise((resolve) => {
-  //   // 模拟异步操作，使用 setTimeout
-  //   let data={
-  //     token: 'eyJhbGciOiJIUzUxMiJ9.eyJsb2dpbl91c2VyX2tleSI6ImYwNGJmZWY1LTAzMDYtNDFjOS04NGRhLWRiYzk3YzBlYTgwMCJ9.-nq-kGL5Odg9ELRCVg4A7JkwwJakgqxBXVDV_Wh2nEbEcpnmW7ACYO2fGk08MjeT0loeDvLxeHtIq28yppbe6g',
-  //   }
-  //   resolve(data);
-  // });
 }
 export function loadGetAccessToken(id) {
     return request({
@@ -72,16 +64,16 @@ export function loadGetAccessToken(id) {
 }
 
 // 注册方法
-export function register(data) {
-  return request({
-    url: 'register',
-    headers: {
-      isToken: false
-    },
-    method: 'post',
-    data: data
-  })
-}
+// export function register(data) {
+//   return request({
+//     url: 'register',
+//     headers: {
+//       isToken: false
+//     },
+//     method: 'post',
+//     data: data
+//   })
+// }
 
 // 获取用户详细信息
 export function getInfo() {

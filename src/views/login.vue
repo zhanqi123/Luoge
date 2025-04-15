@@ -1,5 +1,5 @@
 <template>
-
+  <!-- 保持原有模板内容不变 -->
   <div v-show="showPage" class="login-container">
     <!-- 全局加载蒙层 -->
     <transition name="fade">
@@ -41,6 +41,9 @@
           top: -5%;
           z-index: 9999;
           left: 3%;" :loading="loading" @click.native.prevent="test()">测试</el-button>
+      <el-input v-model="input" placeholder="请输入内容" style="z-index: 9999;
+          left: 53%;    position: absolute;
+          top: 5%;"></el-input>
     </el-form>
   </div>
 </template>
@@ -49,7 +52,6 @@
 export default {
   name: "Login",
   data() {
-
     return {
       progress: 0,
       interval: null,
@@ -58,13 +60,12 @@ export default {
       ruleForm: {
         password: "",
       },
-
+      input: '',
       showPage: false,
       loginForm: {
         username: "admin",
         password: "123456",
         // orgId: "",
-        
       },
 
       title: '珞格科技发展档案管理系统',
@@ -83,14 +84,11 @@ export default {
         ],
         code: [{ required: true, trigger: "change", message: "请输入验证码" }]
       },
-      qrCodeUrl: "" ,
+      qrCodeUrl: "",
       loginTmpCode: '',
-      url:'https://oapi.dingtalk.com/connect/qrconnect?appid=dingjzgedsmzjqhxucpj&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=' + encodeURIComponent('https://erp.hbluoge.com/LoginAPI.aspx?'),
-      // url:'https://oapi.dingtalk.com/connect/qrconnect?appid=dingjzgedsmzjqhxucpj&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://erp.hbluoge.com/LoginAPI.aspx?',
-      // uuid: 'DA' + Date.now() + Math.random().toString(36).substr(2), // 动态生成
-      uuid: 'DA' + Date.now() + Math.random().toString(36).substr(2), // 动态生成
-      // uuid:'dad12212'
 
+      url: 'https://oapi.dingtalk.com/connect/qrconnect?appid=dingjzgedsmzjqhxucpj&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://erp.hbluoge.com/LoginAPI.aspx?',
+      uuid: 'DA' + Date.now() + Math.random().toString(36).substr(2), // 动态生成
     };
   },
   watch: {
@@ -118,12 +116,15 @@ export default {
     } else {
       this.showPage = true;
     }
+
+    console.log(this.url)
   },
   methods: {
     handleLogin() {
       let formData = new FormData();
       this.loading = true
-      formData.append('Token', this.uuid);
+      // formData.append('Token', this.uuid);
+      formData.append('Token', '888');
       this.$store.dispatch("Login", formData).then((res) => {
         this.startProgress()
         setTimeout(() => {
@@ -135,22 +136,24 @@ export default {
         }, 800)
       }).catch(() => {
         this.loading = false;
-        if (this.captchaEnabled) {
-          this.getCode();
-        }
+        // if (this.captchaEnabled) {
+        //   this.getCode();
+        // }
         this.$message.warning('登录失败,请重新钉钉扫码登录')
         // 登录失败，重新初始化钉钉登录
-        this.initDingLogin();
+        // this.initDingLogin();
       });
     },
     test() {
       // this.qrCodeUrl=this.qrCodeUrl+this.uuid
       // console.log(this.qrCodeUrl)
       let formData = new FormData();
-      formData.append('Name', '占琦');
+      formData.append('Name', this.input);
+      // formData.append('Name', '占琦');
       this.$store.dispatch("testLogin", formData).then((res) => {
         this.startProgress()
         setTimeout(() => {
+        
           this.$router.push({ path: this.redirect || "/" })
             .finally(() => {
               this.loading = false
@@ -167,12 +170,7 @@ export default {
         this.initDingLogin();
       });
 
-      return
-      testlogin(formData).then(res=>{
-        console.log(res)
-      })
-      return
-      window.open(this.qrCodeUrl, "_blank");
+
     },
     startProgress() {
       this.interval = setInterval(() => {
@@ -183,37 +181,34 @@ export default {
     },
 
     initDingLogin() {
-      // this.qrCodeUrl = this.qrCodeUrl + this.uuid
-      // console.log(this.qrCodeUrl)
+      // this.qrCodeUrl = this.url+this.uuid
+      this.qrCodeUrl = this.url + '888'
       const obj = window.DDLogin({
         id: "login_container",
         goto: encodeURIComponent(this.qrCodeUrl),
         style: "border:none;background-color:#FFFFFF;  text-align: center;",
         width: "300",
         height: "400",
-
       });
     },
     handleDingMessage(event) {
       if (event.origin !== "https://login.dingtalk.com") return;
       this.loginTmpCode = event.data;
+
+      // 构造接口地址
+
+
       this.handleLogin();
     },
-
-
   },
   mounted() {
-    this.qrCodeUrl=this.url+this.uuid
     this.initDingLogin();
     window.addEventListener('message', this.handleDingMessage)
   },
-  
-  beforeDestroy() { // 组件销毁时移除监听
-  window.removeEventListener('message', this.handleDingMessage)
-},
 };
 </script>
 <style lang="scss">
+/* 保持原有样式内容不变 */
 $bg: #fff;
 $light_gray: #000;
 $cursor: #000;

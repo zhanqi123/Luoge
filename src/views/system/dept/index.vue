@@ -2,14 +2,9 @@
   <div class="app-container">
     <el-form :model="queryParams" ref="queryForm" size="small" :inline="true" v-show="showSearch">
       <el-form-item label="部门名称" prop="deptName">
-        <el-input
-          v-model="queryParams.deptName"
-          placeholder="请输入部门名称"
-          clearable
-          @keyup.enter.native="handleQuery"
-        />
+        <el-input v-model="queryParams.deptName" placeholder="请输入部门名称" clearable @keyup.enter.native="handleQuery" />
       </el-form-item>
-      <el-form-item label="状态" prop="status">
+      <!-- <el-form-item label="状态" prop="status">
         <el-select v-model="queryParams.status" placeholder="部门状态" clearable>
           <el-option
             v-for="dict in dict.type.sys_normal_disable"
@@ -18,7 +13,7 @@
             :value="dict.value"
           />
         </el-select>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item>
         <el-button type="primary" icon="el-icon-search" size="mini" @click="handleQuery">搜索</el-button>
         <el-button icon="el-icon-refresh" size="mini" @click="resetQuery">重置</el-button>
@@ -27,16 +22,10 @@
 
     <el-row :gutter="10" class="mb8">
       <el-col :span="1.5">
-        <el-button
-          type="primary"
-          plain
-          icon="el-icon-plus"
-          size="mini"
-          @click="handleAdd"
-          v-hasPermi="['system:dept:add']"
-        >新增</el-button>
+        <el-button type="primary" plain icon="el-icon-plus" size="mini" @click="handleAdd"
+          v-hasPermi="['system:dept:add']">新增</el-button>
       </el-col>
-      <el-col :span="1.5">
+      <!-- <el-col :span="1.5">
         <el-button
           type="info"
           plain
@@ -44,83 +33,58 @@
           size="mini"
           @click="toggleExpandAll"
         >展开/折叠</el-button>
-      </el-col>
-      <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar>
+      </el-col> -->
+      <!-- <right-toolbar :showSearch.sync="showSearch" @queryTable="getList"></right-toolbar> -->
     </el-row>
 
-    <el-table
-      v-if="refreshTable"
-      v-loading="loading"
-      :data="deptList"
-      row-key="deptId"
-      :default-expand-all="isExpandAll"
-      :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-    >
-      <el-table-column prop="deptName" label="部门名称" width="260"></el-table-column>
-      <el-table-column prop="orderNum" label="排序" width="200"></el-table-column>
+    <el-table v-if="refreshTable" v-loading="loading" :data="deptList" row-key="deptId"
+      :default-expand-all="isExpandAll" :tree-props="{ children: 'children', hasChildren: 'hasChildren' }">
+      <el-table-column prop="deptName" label="部门名称" ></el-table-column>
+      <!-- <el-table-column prop="orderNum" label="排序" width="200"></el-table-column>
       <el-table-column prop="status" label="状态" width="100">
         <template slot-scope="scope">
           <dict-tag :options="dict.type.sys_normal_disable" :value="scope.row.status"/>
         </template>
-      </el-table-column>
-      <el-table-column label="创建时间" align="center" prop="createTime" width="200">
+</el-table-column> -->
+      <el-table-column label="创建时间" align="center" prop="createTime" >
         <template slot-scope="scope">
           <span>{{ parseTime(scope.row.createTime) }}</span>
         </template>
       </el-table-column>
       <el-table-column label="操作" align="center" class-name="small-padding fixed-width">
         <template slot-scope="scope">
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-edit"
-            @click="handleUpdate(scope.row)"
-            v-hasPermi="['system:dept:edit']"
-          >修改</el-button>
-          <el-button
-            size="mini"
-            type="text"
-            icon="el-icon-plus"
-            @click="handleAdd(scope.row)"
-            v-hasPermi="['system:dept:add']"
-          >新增</el-button>
-          <el-button
-            v-if="scope.row.parentId != 0"
-            size="mini"
-            type="text"
-            icon="el-icon-delete"
-            @click="handleDelete(scope.row)"
-            v-hasPermi="['system:dept:remove']"
-          >删除</el-button>
+          <el-button size="mini" class="update" type="text" icon="el-icon-edit" @click="handleUpdate(scope.row)"
+            v-hasPermi="['system:dept:edit']">修改</el-button>
+          <el-button size="mini" type="text" class="add" icon="el-icon-plus" @click="handleAdd(scope.row)"
+            v-hasPermi="['system:dept:add']">新增</el-button>
+          <el-button v-if="scope.row.parentId != 0" size="mini" class="delete" type="text" icon="el-icon-delete"
+            @click="handleDelete(scope.row)" v-hasPermi="['system:dept:remove']">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
     <!-- 添加或修改部门对话框 -->
     <el-dialog :title="title" :visible.sync="open" width="600px" append-to-body>
-      <el-form ref="form" :model="form" :rules="rules" label-width="80px">
+      <el-form ref="form" :model="form" :rules="rules" label-width="100px">
         <el-row>
           <el-col :span="24" v-if="form.parentId !== 0">
             <el-form-item label="上级部门" prop="parentId">
-              <treeselect v-model="form.parentId" :options="deptOptions" :normalizer="normalizer" placeholder="选择上级部门" />
+              <treeselect v-model="form.parentId"   :disabled="form.deptId != undefined" :options="deptOptions" :normalizer="normalizer"
+                placeholder="选择上级部门" />
             </el-form-item>
           </el-col>
         </el-row>
         <el-row>
-          <el-col :span="12">
+          <el-col :span="24">
             <el-form-item label="部门名称" prop="deptName">
               <el-input v-model="form.deptName" placeholder="请输入部门名称" />
             </el-form-item>
           </el-col>
-          <el-col :span="12">
-            <el-form-item label="显示排序" prop="orderNum">
-              <el-input-number v-model="form.orderNum" controls-position="right" :min="0" />
-            </el-form-item>
-          </el-col>
+
         </el-row>
-        <el-row>
+        <!-- <el-row>
           <el-col :span="12">
-            <el-form-item label="负责人" prop="leader">
+            <el-form-item label="部门管理员" prop="leader">
               <el-input v-model="form.leader" placeholder="请输入负责人" maxlength="20" />
             </el-form-item>
           </el-col>
@@ -129,14 +93,10 @@
               <el-input v-model="form.phone" placeholder="请输入联系电话" maxlength="11" />
             </el-form-item>
           </el-col>
-        </el-row>
+        </el-row> -->
         <el-row>
-          <el-col :span="12">
-            <el-form-item label="邮箱" prop="email">
-              <el-input v-model="form.email" placeholder="请输入邮箱" maxlength="50" />
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
+
+          <!-- <el-col :span="12">
             <el-form-item label="部门状态">
               <el-radio-group v-model="form.status">
                 <el-radio
@@ -146,7 +106,7 @@
                 >{{dict.label}}</el-radio>
               </el-radio-group>
             </el-form-item>
-          </el-col>
+          </el-col> -->
         </el-row>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -158,9 +118,55 @@
 </template>
 
 <script>
-import { listDept, getDept, delDept, addDept, updateDept, listDeptExcludeChild } from "@/api/system/dept";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
+import { initList } from '@/api/record.js'
+
+// 模拟接口函数
+const listDept = () => {
+  return Promise.resolve({
+    data: [
+      {
+        "createBy": "admin",
+        "createTime": "2024-06-30 11:27:07",
+        "deptId": 100,
+        "parentId": 0,
+        "ancestors": "0",
+        "deptName": "珞格科技",
+
+        "leader": "珞格",
+        "phone": "15888888888",
+        "children": []
+      },
+      {
+        "createBy": "admin",
+        "createTime": "2024-06-30 11:27:07",
+        "deptId": 101,
+        "parentId": 100,
+        "ancestors": "0,100",
+        "deptName": "深圳分公司",
+
+        "leader": "珞格",
+        "phone": "15888888888",
+        "children": []
+      },
+
+      {
+        "createBy": "admin",
+        "createTime": "2024-06-30 11:27:08",
+        "deptId": 103,
+        "parentId": 101,
+        "ancestors": "0,100,101",
+        "deptName": "财务部",
+
+        "leader": "珞格",
+        "phone": "15888888888",
+
+        "children": []
+      },
+    ]
+  });
+};
 
 export default {
   name: "Dept",
@@ -216,7 +222,7 @@ export default {
             trigger: "blur"
           }
         ]
-      }
+      },
     };
   },
   created() {
@@ -225,11 +231,20 @@ export default {
   methods: {
     /** 查询部门列表 */
     getList() {
+      let formData = new FormData();
+      formData = {
+        voidid: 830,
+        DepID: '1'
+      }
       this.loading = true;
-      listDept(this.queryParams).then(response => {
-        this.deptList = this.handleTree(response.data, "deptId");
+      initList(formData).then(res => {
+
+        if (res.Data) {
+          this.deptList = [this.transformData(res.Data[0])]
+          this.deptOptions = [this.transformData(res.Data[0])]
+        }
         this.loading = false;
-      });
+      })
     },
     /** 转换部门数据结构 */
     normalizer(node) {
@@ -250,14 +265,7 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-        deptId: undefined,
-        parentId: undefined,
-        deptName: undefined,
-        orderNum: undefined,
-        leader: undefined,
-        phone: undefined,
-        email: undefined,
-        status: "0"
+
       };
       this.resetForm("form");
     },
@@ -278,9 +286,11 @@ export default {
       }
       this.open = true;
       this.title = "添加部门";
-      listDept().then(response => {
-        this.deptOptions = this.handleTree(response.data, "deptId");
-      });
+
+      // listDept().then(response => {
+      //   this.deptOptions = this.handleTree(response.data, "deptId");
+      //   console.log(this.deptOptions)
+      // });
     },
     /** 展开/折叠操作 */
     toggleExpandAll() {
@@ -292,49 +302,160 @@ export default {
     },
     /** 修改按钮操作 */
     handleUpdate(row) {
-      this.reset();
-      getDept(row.deptId).then(response => {
-        this.form = response.data;
-        this.open = true;
-        this.title = "修改部门";
-        listDeptExcludeChild(row.deptId).then(response => {
-          this.deptOptions = this.handleTree(response.data, "deptId");
-          if (this.deptOptions.length == 0) {
-            const noResultsOptions = { deptId: this.form.parentId, deptName: this.form.parentName, children: [] };
-            this.deptOptions.push(noResultsOptions);
-          }
-        });
-      });
+
+      this.form = JSON.parse(JSON.stringify(row));
+      this.open = true;
+      this.title = "修改部门";
+
     },
     /** 提交按钮 */
-    submitForm: function() {
+    submitForm: function () {
+
       this.$refs["form"].validate(valid => {
         if (valid) {
           if (this.form.deptId != undefined) {
-            updateDept(this.form).then(response => {
-              this.$modal.msgSuccess("修改成功");
-              this.open = false;
-              this.getList();
-            });
+
+            let data = {
+              DepID: this.form.deptId,
+              NewDepName: this.form.deptName,
+              voidid: 832
+            }
+            initList(data).then(res => {
+              if (res.Data) {
+                this.$modal.msgSuccess("修改成功");
+                this.open = false;
+                this.reset()
+                this.getList();
+              }else{
+                this.$modal.msgError(res.ErrorInfo);
+              }
+            })
+            // updateDept(this.form).then(response => {
+            //   this.$modal.msgSuccess("修改成功");
+            //   this.open = false;
+            //   this.getList();
+            // });
           } else {
-            addDept(this.form).then(response => {
-              this.$modal.msgSuccess("新增成功");
-              this.open = false;
-              this.getList();
-            });
+
+
+            let data = {
+              DepID: this.form.parentId,
+              NewDepName: this.form.deptName,
+              voidid: 831
+            }
+            initList(data).then(res => {
+              if (res.Data) {
+                this.$modal.msgSuccess("新增成功");
+                this.open = false;
+                this.reset()
+                this.getList();
+              }else{
+                this.$modal.msgError(res.ErrorInfo);
+              }
+            })
+  
           }
         }
       });
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      this.$modal.confirm('是否确认删除名称为"' + row.deptName + '"的数据项？').then(function() {
-        return delDept(row.deptId);
+      console.log(row)
+      this.$confirm('是否确认删除名称为"' + row.deptName + '"这个部门？', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
       }).then(() => {
-        this.getList();
-        this.$modal.msgSuccess("删除成功");
-      }).catch(() => {});
+        let data = {
+          DepID: row.deptId,
+          voidid: 833
+        }
+        initList(data).then(res => {
+          console.log(res)
+          if (res.Data) {
+            this.getList()
+            this.$modal.msgSuccess("删除成功");
+          }else{
+            this.$modal.msgError(res.ErrorInfo);
+          }
+        })
+        // this.$message({
+        //   type: 'success',
+        //   message: '删除成功!'
+        // });
+      }).catch(() => {
+
+      });
+
+    },
+    /** 处理树形数据 */
+    handleTree(data, id) {
+      const map = {};
+      const tree = [];
+
+      data.forEach(item => {
+        map[item[id]] = { ...item, children: [] };
+      });
+
+      data.forEach(item => {
+        const parent = map[item.parentId];
+        if (parent) {
+          parent.children.push(map[item[id]]);
+        } else {
+          tree.push(map[item[id]]);
+        }
+      });
+
+      return tree;
+    },
+
+    transformData(data, parentId = 0, ancestors = '0') {
+
+      // const deptIdBase = 100;
+      // const newDeptId = deptIdBase + parseInt(data["部门ID"]);
+      const newDeptId = parseInt(data["部门ID"])
+
+      const result = {
+        "createBy": "admin",
+        "createTime": "2024-06-30 11:27:07",
+        "deptId": newDeptId,
+        "parentId": parentId,
+        "ancestors": ancestors,
+        "deptName": data["部门名称"],
+        "leader": "珞格",
+        "phone": "15888888888",
+        "children": []
+      };
+
+      // 处理下级部门
+      let subDepts = [];
+      if (typeof data["下级部门名称"] === 'string') {
+        subDepts = JSON.parse(data["下级部门名称"].replace(/'/g, '"'));
+      } else if (Array.isArray(data["下级部门名称"])) {
+        subDepts = data["下级部门名称"];
+      }
+
+      for (const subDept of subDepts) {
+        const newAncestors = `${ancestors},${newDeptId}`;
+        const subResult = this.transformData(subDept, newDeptId, newAncestors);
+        result.children.push(subResult);
+      }
+
+      return result;
     }
   }
 };
 </script>
+
+<style scoped lang="scss">
+/* 这里可以添加样式 */
+.add{
+color:#67C23A;
+}
+.update{
+color:#E6A23C;
+}
+.delete{
+color:#F56C6C;
+}
+</style>

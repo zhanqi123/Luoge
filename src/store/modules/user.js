@@ -67,12 +67,11 @@ const user = {
     },
     //测试登录
     testLogin({ commit }, userInfo) {
-      // const username = userInfo.username.trim()
-      // const password = userInfo.password
-      // const code = userInfo.code
+ 
       const token = userInfo
       return new Promise((resolve, reject) => {
         testlogin(token).then(res => {
+          console.log(res,'99999')
           if(res.Data.length>0){
             setToken(res.Data[0].StaffID)
             commit('SET_TOKEN', res.Data[0].StaffID)
@@ -96,7 +95,7 @@ const user = {
          
             return new Promise((resolve, reject) => {
         getInfo().then(res => {
-          
+       
           const user = res.user
           let avatar = user.avatar || ""
           if (!isHttp(avatar)) {
