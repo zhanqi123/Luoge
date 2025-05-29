@@ -2,7 +2,7 @@
   <div class="sidebar-logo-container" :class="{'collapse':collapse}" :style="{ backgroundColor: sideTheme === 'theme-dark' ? variables.menuBackground : variables.menuLightBackground }">
     <transition name="sidebarLogoFade">
       <router-link v-if="collapse" key="collapse" class="sidebar-logo-link" to="/">
-        <img v-if="logo" :src="logo" class="sidebar-logo" />
+        <img v-if="logo" :src="logo1" class="sidebar-logo1" />
         <h1 v-else class="sidebar-title" :style="{ color: sideTheme === 'theme-dark' ? variables.logoTitleColor : variables.logoLightTitleColor }">{{ title }} </h1>
       </router-link>
       <router-link v-else key="expand" class="sidebar-logo-link" to="/">
@@ -15,6 +15,7 @@
 
 <script>
 import logoImg from '@/assets/logo/logo.png'
+import logoImg1 from '@/assets/logo/logo2.png'
 import variables from '@/assets/styles/variables.scss'
 
 export default {
@@ -36,7 +37,8 @@ export default {
   data() {
     return {
       title: process.env.VUE_APP_TITLE,
-      logo: logoImg
+      logo: logoImg,
+      logo1:logoImg1
     }
   }
 }
@@ -70,6 +72,14 @@ export default {
       // height: 70px;
       width: 133px;
       height: 60px;
+      vertical-align: middle;
+      margin-right: 12px;
+    }
+    .sidebar-logo1 {
+      // width: 70px;
+      // height: 70px;
+      width: 55px;
+      height: 55px;
       vertical-align: middle;
       margin-right: 12px;
     }

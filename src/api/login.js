@@ -54,7 +54,7 @@ export function loadGetAccessToken(id) {
     method: 'get'
   })
   // return request({
-  //   url: 'register',
+  //   url: 'oneRegister',
   //   headers: {
   //     isToken: false
   //   },
@@ -196,4 +196,19 @@ export function getCodeImg() {
     }
     resolve(data);
   });
+}
+
+export function falgLogin(data) {
+
+  return request({
+    url: '/login', // 拼接具体接口路径
+      headers: {
+      isToken: false,
+      repeatSubmit: false,
+      'Content-Type': 'multipart/form-data'
+      
+    },
+    method: 'post',
+     data: data
+  })
 }

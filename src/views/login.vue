@@ -24,15 +24,23 @@
     <img v-if="isAdmin" src="@/assets/images/login_img/ope.png" class="bg-img" alt="qiyetupian" />
     <!-- platform -->
     <img v-if="!isAdmin" src="@/assets/images/login_img/apli.png" class="bg-img" alt="qiyetupian" />
-    <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on"
+    <el-form ref="loginForm" :model="loginForm"  class="login-form" auto-complete="on"
       label-position="left">
       <div class="title-container">
-        <div class="title-greet">欢迎登录~</div>
+        <div class="title-greet">欢迎登录 <span @click="test()">~</span></div>
         <div class="title">{{ title }}</div>
       </div>
-      <div id="login_container" class="qrcode-container"></div>
+      <!-- <div id="login_container" class="qrcode-container"></div> -->
+      <div class="iframe-container">
+        <iframe class="custom-iframe" 
+          frameborder="0"
+          scrolling="no" 
+          :src="qrCodeUrl" name="dingtalkLogin" ref="loginFrame" >
+        </iframe>
+      </div>
 
-      <el-button type="warning" style="
+      <!-- 测试按钮 -->
+      <!-- <el-button type="warning" style="
           width: 20%;
           margin-top: 10%;
           padding: 10px 20px;
@@ -40,26 +48,27 @@
           position: absolute;
           top: -5%;
           z-index: 9999;
-          left: 3%;" :loading="loading" @click.native.prevent="test()">测试</el-button>
-      <el-input v-model="input" placeholder="请输入内容" style="z-index: 9999;
-          left: 53%;    position: absolute;
+          left: 3%;" :loading="loading" @click.native.prevent="test()">测试</el-button> -->
+      <el-input v-model="input" placeholder="1" style="z-index: 9999;
+          left: 53%;    
+          position: absolute;
           top: 5%;"></el-input>
     </el-form>
   </div>
 </template>
+
 <script>
-// import { testlogin } from '@/api/login'
+import { falgLogin } from '@/api/login'
+
 export default {
   name: "Login",
   data() {
     return {
       progress: 0,
       interval: null,
-      isResetPwd: false, // 是否弹出重置密码
-      strength: 6, // 密码强度
-      ruleForm: {
-        password: "",
-      },
+     
+      
+  
       input: '',
       showPage: false,
       loginForm: {
@@ -73,22 +82,16 @@ export default {
 
       redirect: undefined,
       isAdmin: false,
-      orgOptions: [],
+      pollingInterval: null,
+     
       bgImg: null, //自定义bg
-      loginRules: {
-        username: [
-          { required: true, trigger: "blur", message: "请输入您的用户名" }
-        ],
-        password: [
-          { required: true, trigger: "blur", message: "请输入您的密码" }
-        ],
-        code: [{ required: true, trigger: "change", message: "请输入验证码" }]
-      },
+ 
       qrCodeUrl: "",
       loginTmpCode: '',
-
       url: 'https://oapi.dingtalk.com/connect/qrconnect?appid=dingjzgedsmzjqhxucpj&response_type=code&scope=snsapi_login&state=STATE&redirect_uri=https://erp.hbluoge.com/LoginAPI.aspx?',
       uuid: 'DA' + Date.now() + Math.random().toString(36).substr(2), // 动态生成
+      captchaEnabled: false, // 添加验证码开关
+        isActive: false, // 新增激活状态标志
     };
   },
   watch: {
@@ -117,97 +120,190 @@ export default {
       this.showPage = true;
     }
 
-    console.log(this.url)
   },
   methods: {
     handleLogin() {
-      let formData = new FormData();
-      this.loading = true
-      // formData.append('Token', this.uuid);
-      formData.append('Token', '888');
-      this.$store.dispatch("Login", formData).then((res) => {
-        this.startProgress()
-        setTimeout(() => {
-          this.$router.push({ path: this.redirect || "/" })
-            .finally(() => {
-              this.loading = false
-              clearInterval(this.interval)
-            })
-        }, 800)
-      }).catch(() => {
-        this.loading = false;
-        // if (this.captchaEnabled) {
-        //   this.getCode();
-        // }
-        this.$message.warning('登录失败,请重新钉钉扫码登录')
-        // 登录失败，重新初始化钉钉登录
-        // this.initDingLogin();
+      // 添加表单验证
+      this.$refs.loginForm.validate((valid) => {
+        if (valid) {
+          let formData = new FormData();
+          this.loading = true;
+          this.progress = 0; // 重置进度条
+          formData.append('Token', this.uuid);
+          
+          this.$store.dispatch("Login", formData).then((res) => {
+              if (this.pollingInterval) {
+          clearInterval(this.pollingInterval);
+          this.pollingInterval = null;
+        }
+            this.startProgress();
+            setTimeout(() => {
+              this.$router.push({ path: this.redirect || "/" })
+                .finally(() => {
+                  this.loading = false;
+                  clearInterval(this.interval);
+                });
+            }, 800);
+          }).catch((error) => {
+            console.error('登录失败:', error);
+            this.loading = false;
+            this.progress = 0; // 重置进度条
+            this.$message.warning('登录失败,请重新钉钉扫码登录');
+            // 登录失败，重新初始化钉钉登录
+            this.initDingLogin();
+          });
+        } else {
+          this.$message.warning('请完成必填项');
+          return false;
+        }
       });
     },
     test() {
-      // this.qrCodeUrl=this.qrCodeUrl+this.uuid
-      // console.log(this.qrCodeUrl)
+      // 检查输入是否为空
+      if (!this.input.trim()) {
+        this.$message.warning('请输入测试用户名');
+        return;
+      }
+      
       let formData = new FormData();
       formData.append('Name', this.input);
-      // formData.append('Name', '占琦');
+      this.loading = true;
+      this.progress = 0; // 重置进度条
+      
       this.$store.dispatch("testLogin", formData).then((res) => {
-        this.startProgress()
+          if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
+    }
+        this.startProgress();
         setTimeout(() => {
-        
           this.$router.push({ path: this.redirect || "/" })
             .finally(() => {
-              this.loading = false
-              clearInterval(this.interval)
-            })
-        }, 800)
-      }).catch(() => {
+              this.loading = false;
+              clearInterval(this.interval);
+            });
+        }, 800);
+      }).catch((error) => {
+   
         this.loading = false;
+        this.progress = 0; // 重置进度条
         if (this.captchaEnabled) {
           this.getCode();
         }
-        this.$message.warning('登录失败,请重新钉钉扫码登录')
+        this.$message.warning('登录失败,请重新钉钉扫码登录');
         // 登录失败，重新初始化钉钉登录
         this.initDingLogin();
       });
-
-
     },
     startProgress() {
+      this.progress = 0; // 确保从0开始
       this.interval = setInterval(() => {
         if (this.progress < 95) {
-          this.progress += Math.random() * 15
+          this.progress += Math.random() * 15;
+        } else if (this.progress < 100) {
+          this.progress = 100;
+          clearInterval(this.interval);
         }
-      }, 200)
+      }, 200);
     },
 
     initDingLogin() {
-      // this.qrCodeUrl = this.url+this.uuid
-      this.qrCodeUrl = this.url + '888'
-      const obj = window.DDLogin({
-        id: "login_container",
-        goto: encodeURIComponent(this.qrCodeUrl),
-        style: "border:none;background-color:#FFFFFF;  text-align: center;",
-        width: "300",
-        height: "400",
+      this.qrCodeUrl = this.url + this.uuid;
+    },
+    loginFalg() {
+      let formData = new FormData();
+      formData.append('Token', this.uuid);
+      falgLogin(formData).then(res => {
+        if (res.Data) {
+          this.handleLogin();
+        }
       });
     },
-    handleDingMessage(event) {
-      if (event.origin !== "https://login.dingtalk.com") return;
-      this.loginTmpCode = event.data;
+startPolling() {
+      if (this.pollingInterval) {
+        clearInterval(this.pollingInterval);
+        this.pollingInterval = null;
+      }
 
-      // 构造接口地址
+      this.pollingInterval = setInterval(async () => {
+        // 检查组件是否仍然激活
+        if (!this.isActive) {
+          clearInterval(this.pollingInterval);
+          this.pollingInterval = null;
+          return;
+        }
 
+        try {
+          let formData = new FormData();
+          formData.append('Token', this.uuid);
+          const res = await falgLogin(formData);
 
-      this.handleLogin();
-    },
+          if (res.Data) {
+            clearInterval(this.pollingInterval);
+            this.pollingInterval = null;
+            await this.handleLogin();
+          }
+        } catch (error) {
+          console.error('轮询请求失败:', error);
+          if (!this.pollingInterval && this.isActive) {
+            this.startPolling();
+          }
+        }
+      }, 2000);
+    }
+,
+    // 添加缺失的getCode方法
+    getCode() {
+      // 实现获取验证码的逻辑
+      console.log('获取验证码');
+    }
   },
   mounted() {
+        this.isActive = true; // 标记组件为激活状态
     this.initDingLogin();
-    window.addEventListener('message', this.handleDingMessage)
+    this.startPolling();
   },
+   // 新增导航守卫
+  beforeRouteLeave(to, from, next) {
+    this.isActive = false;
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
+    }
+    next();
+  },
+  beforeUnmount() {
+  this.isActive = false; // 标记组件为非激活状态
+    if (this.pollingInterval) {
+      clearInterval(this.pollingInterval);
+      this.pollingInterval = null;
+    }
+    if (this.interval) {
+      clearInterval(this.interval);
+      this.interval = null;
+    }
+  
+  }
 };
 </script>
+
 <style lang="scss">
+.iframe-container {
+  width: 300px;
+  height: 280px;
+  overflow: hidden;
+  position: relative; /* 容器设为相对定位 */
+}
+.custom-iframe{
+  width: 400px; 
+  height: 400px;
+  border: 0;
+  position: absolute; 
+  /* 通过负边距偏移内容 */
+  left: -50px;
+  top: -50px;
+}
+
 /* 保持原有样式内容不变 */
 $bg: #fff;
 $light_gray: #000;
@@ -270,19 +366,15 @@ $cursor: #000;
 .admin-login {
   background-image: url(~@/assets/images/login_img/ope.png);
   background-color: #3176FB;
-  background-color: #3176FB;
-  ;
 }
 
 .apli-login {
   background-image: url(~@/assets/images/login_img/apli.png);
   background-color: #3176FB;
-  ;
-  background-color: #3176FB;
-  ;
   background-size: "contain";
 }
 </style>
+
 <style lang="scss" scoped>
 $bg: #01367a;
 $dark_gray: #889aa4;
@@ -369,7 +461,6 @@ $color_primary: #356edf;
     height: 30px;
     line-height: 0px;
     font-size: 14px;
-
   }
 }
 
@@ -411,7 +502,6 @@ $color_primary: #356edf;
     .login-password,
     .login-org {
       color: #3176FB !important;
-      color: #3176FB !important;
     }
   }
 
@@ -447,7 +537,6 @@ $color_primary: #356edf;
 
     .title {
       font-size: 15px;
-      color: #3176FB;
       color: #3176FB;
       margin: 0 auto 10% auto;
       font-weight: bold;

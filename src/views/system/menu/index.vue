@@ -170,37 +170,7 @@
             </el-form-item>
           </el-col>
         </el-row>
-        <!-- <el-row>
-          <el-col :span="12" v-if="form.menuType != 'F'">
-            <el-form-item prop="visible">
-              <span slot="label">
-                <el-tooltip content="选择隐藏则路由将不会出现在侧边栏，但仍然可以访问" placement="top">
-                  <i class="el-icon-question"></i>
-                </el-tooltip>
-                显示状态
-              </span>
-              <el-radio-group v-model="form.visible">
-                <el-radio v-for="dict in dict.type.sys_show_hide" :key="dict.value" :label="dict.value">{{ dict.label
-                  }}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item prop="status">
-              <span slot="label">
-                <el-tooltip content="选择停用则路由将不会出现在侧边栏，也不能被访问" placement="top">
-                  <i class="el-icon-question"></i>
-                </el-tooltip>
-                菜单状态
-              </span>
-              <el-radio-group v-model="form.status">
-                <el-radio v-for="dict in dict.type.sys_normal_disable" :key="dict.value" :label="dict.value">{{
-                  dict.label
-                  }}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-          </el-col>
-        </el-row> -->
+   
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button type="primary" @click="submitForm">确 定</el-button>
@@ -211,16 +181,14 @@
 </template>
 
 <script>
-import { listMenu, getMenu, delMenu, addMenu, updateMenu } from "@/api/system/menu";
 import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import IconSelect from "@/components/IconSelect";
-import { getRouters } from '@/api/menu'
 import { initList } from '@/api/record.js'
 
 export default {
   name: "Menu",
-  dicts: ['sys_show_hide', 'sys_normal_disable'],
+  // dicts: ['sys_show_hide', 'sys_normal_disable'],
   components: { Treeselect, IconSelect },
   data() {
     return {
@@ -230,6 +198,8 @@ export default {
       showSearch: true,
       // 菜单表格树数据
       menuList: [],
+      // 原始菜单列表数据
+      originalMenuList: [],
       // 菜单树选项
       menuOptions: [],
       // 弹出层标题
@@ -258,8 +228,6 @@ export default {
         visible: '',
         isCache: '',
         perms: '',
-
-
       },
       // 表单校验
       rules: {
@@ -282,17 +250,14 @@ export default {
           { required: true, message: "菜单类型不能为空", trigger: "change" }
         ]
       },
-
     };
   },
   created() {
-
   },
   mounted() {
-     setTimeout(()=>{
+    setTimeout(() => {
       this.getList();
-     },300)
-
+    }, 300);
   },
   methods: {
     // 选择图标
@@ -304,14 +269,16 @@ export default {
       let data = {
         voidid: 834,
         MenuID: 0
-
-      }
+      };
       initList(data).then(res => {
-
-        this.menuList = this.convertMenuData(res.Data[0]).children
+        if (res.Data) {
+          this.menuList = this.convertMenuData(res.Data[0]).children;
+          this.originalMenuList = [...this.menuList];
+        } else {
+          this.$modal.msgError(res.ErrorInfo);
+        }
         this.loading = false;
-        // console.log(this.convertMenu(res.Data[0].下级菜单名称))
-      })
+      });
     },
     /** 转换菜单数据结构 */
     normalizer(node) {
@@ -330,15 +297,6 @@ export default {
       const menu = { id: 0, name: '主类目', children: [] };
       menu.children = this.menuList;
       this.menuOptions.push(menu);
-
-      return
-      listMenu().then(response => {
-        this.menuOptions = [];
-        const menu = { menuId: 0, NewMenuName: '主类目', children: [] };
-        // menu.children = this.handleTree(response.data, "menuId");
-        this.menuOptions.push(menu);
-        console.log(this.menuOptions)
-      });
     },
     // 取消按钮
     cancel() {
@@ -348,7 +306,6 @@ export default {
     // 表单重置
     reset() {
       this.form = {
-
         MenuID: '',
         NewMenuName: '',
         component: '',
@@ -360,34 +317,49 @@ export default {
         visible: '',
         isCache: '',
         perms: '',
-
-
-
       };
-      
       this.resetForm("form");
     },
     /** 搜索按钮操作 */
     handleQuery() {
-      this.getList();
+      const keyword = this.queryParams.NewMenuName;
+      if (!keyword) {
+        this.menuList = [...this.originalMenuList];
+        return;
+      }
+      this.menuList = this.filterMenuList(this.originalMenuList, keyword);
+    },
+    /** 递归筛选菜单列表 */
+    filterMenuList(menuList, keyword) {
+      let result = [];
+      menuList.forEach(item => {
+        if (item.name.includes(keyword)) {
+          // 复制当前菜单项，避免引用父级菜单
+          const newItem = { ...item };
+          // 清空父级信息
+          delete newItem.children;
+          result.push(newItem);
+        } else if (item.children && item.children.length > 0) {
+          const filteredChildren = this.filterMenuList(item.children, keyword);
+          result = result.concat(filteredChildren);
+        }
+      });
+      return result;
     },
     /** 重置按钮操作 */
     resetQuery() {
       this.resetForm("queryForm");
-      this.handleQuery();
+      this.menuList = [...this.originalMenuList];
     },
     /** 新增按钮操作 */
     handleAdd(row) {
-      console.log(row)
       this.reset();
       this.getTreeselect();
-
       if (row != null && row.id) {
         this.form.MenuID = row.id;
       } else {
         this.form.MenuID = 0;
       }
-      this.addFlag
       this.open = true;
       this.title = "添加菜单";
     },
@@ -402,12 +374,12 @@ export default {
     /** 修改按钮操作 */
     handleUpdate(row) {
 
- 
+        console.log(row)
       this.reset();
       this.getTreeselect();
-
       this.form = {
-        MenuID: row.id,
+        MenuID: row.MenuID,
+        id:row.id,
         NewMenuName: row.name,
         component: row.component,
         icon: row.icon,
@@ -418,18 +390,17 @@ export default {
         visible: row.visible,
         isCache: row.isCache,
         perms: row.perms,
-
-      }
+      };
       this.open = true;
       this.title = "修改菜单";
-
     },
     /** 提交按钮 */
     submitForm: function () {
       this.$refs["form"].validate(valid => {
         if (valid) {
           let data = {
-            MenuID: this.form.MenuID,
+            // MenuID: this.form.MenuID,
+            MenuID: this.title == "添加菜单" ? this.form.MenuID : this.form.id,
             NewMenuName: this.form.NewMenuName,
             component: this.form.component,
             icon: this.form.icon,
@@ -441,46 +412,41 @@ export default {
             isCache: '0',
             perms: 0,
             voidid: this.title == "添加菜单" ? 835 : 836
-          }
+          };
           initList(data).then(res => {
             if (res.Data) {
               this.title == "添加菜单" ? this.$modal.msgSuccess("新增成功") : this.$modal.msgSuccess("修改成功");
               this.open = false;
               this.getList();
+            } else {
+              this.$modal.msgError(res.ErrorInfo);
             }
-          })
+          });
         }
       });
     },
     /** 删除按钮操作 */
     handleDelete(row) {
-      this.$modal.confirm('是否确认删除名称为"' + row.name + '"的菜单？').then(function () {
-      }).then(() => {
+      this.$modal.confirm('是否确认删除名称为"' + row.name + '"的菜单？').then(() => {
         let data = {
           MenuID: row.id,
           voidid: 837
-        }
+        };
         initList(data).then(res => {
-
           if (res.Data) {
             this.getList();
             this.$modal.msgSuccess("删除成功");
           } else {
             this.$modal.msgError(res.ErrorInfo);
           }
-
-        })
-
-
-      }).catch(() => { });
+        });
+      }).catch(() => {});
     },
     convertMenuData(originalData) {
       // 如果传入的是数组，对数组中的每个元素进行转换
       if (Array.isArray(originalData)) {
         return originalData.map(item => this.convertMenuData(item));
       }
-
-
       // 构建新的菜单对象
       const newItem = {
         name: originalData["菜单名称"],
@@ -503,7 +469,6 @@ export default {
         },
         children: []
       };
-
       // 检查是否存在下级菜单名称
       if (originalData["下级菜单名称"]) {
         let childrenData;
@@ -520,16 +485,13 @@ export default {
         } else {
           childrenData = originalData["下级菜单名称"];
         }
-
         // 递归处理下级菜单
         if (Array.isArray(childrenData)) {
           newItem.children = this.convertMenuData(childrenData);
         }
       }
-
       return newItem;
-    }
-
-  }
+    },
+  },
 };
-</script>
+</script>    

@@ -47,9 +47,16 @@ export const constantRoutes = [
     hidden: true
   },
   {
-    path: '/register',
-    component: () => import('@/views/register'),
-    hidden: true
+    path: '/oneRegister',
+    component: () => import('@/views/oneRegister'),
+    hidden: true,
+    meta: { noAuth: true }
+  },
+  {
+    path: '/auditoneRegister',
+    component: () => import('@/views/auditoneRegister'),
+    hidden: true,
+    meta: { noAuth: true }
   },
   {
     path: '/courseForm',
@@ -74,6 +81,7 @@ export const constantRoutes = [
       {
         path: 'index',
         component: () => import('@/views/index'),
+        // component: () => import('@/views/courseForm'),
         name: 'Index',
         meta: { title: '首页', icon: 'dashboard', affix: true }
       }
@@ -103,7 +111,37 @@ export const constantRoutes = [
         path: 'add',
         component: () => import('@/views/record/add'),
         name: 'Addrecord',
-        meta: { title: '预审材料', icon: 'user' }
+        meta: { title: '填报归档材料', icon: 'user' }
+      },
+      {
+        path: 'audit',
+        component: () => import('@/views/record/add'),
+        name: 'Auditrecord',
+        meta: { title: '审核归档报告', icon: 'user' }
+      },
+      {
+        path: 'look',
+        component: () => import('@/views/record/add'),
+        name: 'Lookrecord',
+        meta: { title: '查看归档报告', icon: 'user' }
+      },
+      // {
+      //   path: 'writeFrom',
+      //   component: () => import('@/views/record/formList/submitFrom'),
+      //   name: 'writeFriteFrom',
+      //   meta: { title: '提交归档报告', icon: 'user' }
+      // },
+      // {
+      //   path: '/submitFrom',
+      //   name: 'submitFrom',
+      //   component: () => import('@/views/record/formList/submitFrom.vue'),
+      //   meta: { title: '提交归档文件', icon: 'user' }
+      // },
+      {
+        path: '/auditFrom',
+        name: 'auditFrom',
+        component: () => import('@/views/record/formList/auditFrom.vue'),
+        meta: { title: '审核归档文件', icon: 'user' }
       }
     ]
   }
@@ -210,7 +248,8 @@ Router.prototype.replace = function push(location) {
 }
 
 export default new Router({
-  mode: 'history', // 去掉url中的#
+  // mode: 'history', // 去掉url中的#
+  mode: 'hash', // 默认是 'history'
   scrollBehavior: () => ({ y: 0 }),
   routes: constantRoutes
 })

@@ -6,13 +6,14 @@
                 <el-col :span="8" :offset="2">
                     <el-form-item label="归属部门" prop="deptId">
                         <treeselect v-model="form.deptId" :options="enabledDeptOptions" :show-count="true"
-                            :normalizer="normalizer" placeholder="请选择归属部门" />
+                            v-loading="treeLoading" :normalizer="normalizer" placeholder="请选择归属部门" />
                     </el-form-item>
                 </el-col>
                 <el-col :span="8" :offset="2">
                     <el-form-item label="角色" prop="userName">
                         <el-select v-model="form.userName" placeholder="请选择所属角色">
-                            <el-option v-for="item in roleList" :key="item.角色ID" :label="item.角色名称" :value="item.角色ID">
+                            <el-option v-for="item in roleList" :key="item.角色ID" :disabled="item.disabled"
+                                :label="item.角色名称" :value="item.角色ID">
                             </el-option>
                         </el-select>
                     </el-form-item>
@@ -88,12 +89,14 @@ import Treeselect from "@riophae/vue-treeselect";
 import "@riophae/vue-treeselect/dist/vue-treeselect.css";
 import { initList } from '@/api/record.js'
 import _ from 'lodash'
+import { getToken } from '@/utils/auth'
 export default {
     name: "addRole",
     components: { Treeselect },
     data() {
         return {
             // 遮罩层
+            treeLoading: false,
             loading: true,
             pagination: {
                 pageNum: 1,
@@ -136,6 +139,8 @@ export default {
             rawLeftList: [],
             // 列信息
             enabledDeptOptions: undefined,
+            mydepartment: [],
+            departmentList: []
         };
     },
     created() {
@@ -184,6 +189,16 @@ export default {
             initList(data).then(res => {
                 if (res.Data) {
                     this.roleList = res.Data
+                    this.roleList.forEach(item => {
+
+                        if (item.角色ID == 1) {
+                            item.disabled = true
+                        } else {
+                            item.disabled = false
+                        }
+                    })
+                } else {
+                    this.$modal.msgError(res.ErrorInfo);
                 }
             })
         },
@@ -198,6 +213,65 @@ export default {
                 children: node.children
             };
         },
+        getdepartment() {
+            let data = {
+                StaffID: getToken(),
+                voidid: 842,
+            }
+            initList(data).then(res => {
+                if (res.Data) {
+                    const targetIds = res.Data.filter(item => item.角色ID == 1 || item.角色ID == 2).map(item => item['部门ID']);
+                    if (targetIds.includes('1')) {
+                        this.enabledDeptOptions = this.departmentList;
+                        this.treeLoading = false
+                    } else {
+                        const filteredData = filterDepartments(this.departmentList, targetIds);
+                        function filterDepartments(data, targetIds) {
+                            return data.filter(item => {
+                                const shouldInclude = targetIds.includes(String(item.deptId));
+                                const children = filterDepartments(item.children, targetIds);
+                                item.children = children;
+                                return shouldInclude || children.length > 0;
+                            });
+                        }
+                        this.enabledDeptOptions = filteredData;
+
+                        this.treeLoading = false
+                    }
+
+                    return
+                    this.partment(res.Data).then((res) => {
+                        this.enabledDeptOptions = this.filterArr2ByArr1(this.mydepartment, this.departmentList)
+                        this.treeLoading = false
+                    });
+                } else {
+                    this.$modal.msgError(res.ErrorInfo);
+                }
+            })
+        },
+        partment(val) {
+            const processedIds = new Set();
+            // 过滤掉重复的部门ID
+            const uniqueItems = val.filter(item => {
+                if (processedIds.has(item.部门ID)) {
+                    return false;
+                }
+                processedIds.add(item.部门ID);
+                return true;
+            });
+            const promises = uniqueItems.map(item => {
+                let data = {
+                    voidid: 830,
+                    DepID: item.部门ID
+                }
+                return initList(data).then(res => {
+                    if (res.Data) {
+                        this.mydepartment = [...res.Data, ...this.mydepartment];
+                    }
+                });
+            });
+            return Promise.all(promises);
+        },
         //获取部门列表
         getDeptTree() {
             let formData = {
@@ -205,10 +279,14 @@ export default {
                 DepID: '1'
             }
             this.loading = true;
+            this.treeLoading = true
             initList(formData).then(res => {
                 if (res.Data) {
-                    this.enabledDeptOptions = [this.transformData(res.Data[0])]
-                    this.loading = false;
+                    this.departmentList = [this.transformData(res.Data[0])]
+                    this.getdepartment()
+                    // this.loading = false;
+                } else {
+                    this.$modal.msgError(res.ErrorInfo);
                 }
             })
         },
@@ -283,7 +361,7 @@ export default {
                             if (res.Data) {
                                 this.$modal.msgSuccess("设置成功");
                                 this.close()
-                            }else{
+                            } else {
                                 this.$modal.msgError(res.ErrorInfo);
                             }
                         }).finally(() => {
@@ -294,9 +372,7 @@ export default {
                     }
                 }
             });
-            return
 
-            return
 
         },
         getuserList() {
@@ -309,10 +385,53 @@ export default {
                 if (res.Data) {
                     this.rawLeftList = res.Data // 保存原始数据
                     this.pagination.pageNum = 1 // 重置页码
+                } else {
+                    this.$modal.msgError(res.ErrorInfo);
                 }
             }).finally(() => {
                 this.loading = false
             })
+        },
+        filterArr2ByArr1(arr1, arr2) {
+            // 定义一个递归函数来提取所有部门ID
+            const extractAllDeptIds = (dept) => {
+                const ids = [parseInt(dept.部门ID)];
+                if (dept.下级部门名称) {
+                    let subDepts = [];
+                    if (typeof dept.下级部门名称 === 'string') {
+                        subDepts = JSON.parse(dept.下级部门名称.replace(/'/g, '"'));
+                    } else if (Array.isArray(dept.下级部门名称)) {
+                        subDepts = dept.下级部门名称;
+                    }
+                    for (const subDept of subDepts) {
+                        ids.push(...extractAllDeptIds(subDept));
+                    }
+                }
+                return ids;
+            };
+
+            // 提取arr1中的所有部门ID，转换为数字集合
+            const allowedIds = new Set();
+            for (const dept of arr1) {
+                const ids = extractAllDeptIds(dept);
+                ids.forEach(id => allowedIds.add(id));
+            }
+
+            // 递归处理每个节点的子部门
+            const processNode = (node) => {
+                // 过滤子部门，只保留允许的ID，并递归处理保留的子部门
+                node.children = node.children.filter(child => {
+                    if (allowedIds.has(child.deptId)) {
+                        processNode(child); // 处理子部门的children
+                        return true;
+                    }
+                    return false;
+                });
+            };
+
+            // 遍历arr2中的每个根节点并处理其子部门
+            arr2.forEach(root => processNode(root));
+            return arr2;
         },
         // 分页大小改变
         handleSizeChange(val) {

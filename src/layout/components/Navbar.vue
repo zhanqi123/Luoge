@@ -110,7 +110,7 @@ export default {
     logout() {
 
       this.$store.dispatch('FedLogOut').then(() => {
-        location.href = '/index'
+        location.href = '/'
       })
       return
       this.$confirm('确定注销并退出系统吗？', '提示', {

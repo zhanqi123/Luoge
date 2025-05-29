@@ -1,7 +1,7 @@
 <template>
   <div class="app-container home">
     <el-row :gutter="20">
-   <h1>首页</h1>
+   <h1 @click="toggleClick">首页</h1>
 
  
     </el-row>
@@ -11,6 +11,7 @@
 </template>
 
 <script>
+import { initList, submitList } from '@/api/oneRegister/index.js'
 export default {
   name: "Index",
   data() {
@@ -22,7 +23,22 @@ export default {
   methods: {
     goTarget(href) {
       window.open(href, "_blank");
-    }
+    },
+
+    toggleClick(){
+        let data = {
+          MenuID: '60',
+          voidid: 837
+        };
+        initList(data).then(res => {
+          if (res.Data) {
+       
+            this.$modal.msgSuccess("删除成功");
+          } else {
+            this.$modal.msgError(res.ErrorInfo);
+          }
+        });
+    },
   }
 };
 </script>

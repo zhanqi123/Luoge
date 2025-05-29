@@ -69,32 +69,40 @@
 
     <el-dialog :title="title" :visible.sync="dialogVisible" width="50%" :before-close="handleClose">
       <el-descriptions :column="1" border>
-        <el-descriptions-item label="LG_2W01_R013测评风险告知书"><el-link type="primary" :underline="false">file_gd_LG-SYS-02308_R013_xlsx.data<i class="el-icon-view el-icon--right" style="color: #303133;margin-left: 5px;">查看</i> </el-link></el-descriptions-item>
-        <el-descriptions-item label="LG_2W01_R014现场测评授权书"> <el-link type="primary" :underline="false">表单最新逻辑.xlsx<i class="el-icon-view el-icon--right" style="color: #303133;margin-left: 5px;">查看</i> </el-link> </el-descriptions-item>
-        <el-descriptions-item label="LG_2W01_R019验证测试授权书"><el-link type="primary" :underline="false">file_gd_LG-SYS-02308_R013_xlsx.data<i class="el-icon-view el-icon--right" style="color: #303133;margin-left: 5px;">查看</i> </el-link></el-descriptions-item>
-        <el-descriptions-item label="LG_2W01_R015自愿放弃验证测试声明"><el-link type="primary" :underline="false">file_gd_LG-SYS-02308_R013_xlsx.data<i class="el-icon-view el-icon--right" style="color: #303133;margin-left: 5px;">查看</i> </el-link></el-descriptions-item>
+        <el-descriptions-item label="LG_2W01_R013测评风险告知书"><el-link type="primary"
+            :underline="false">file_gd_LG-SYS-02308_R013_xlsx.data<i class="el-icon-view el-icon--right"
+              style="color: #303133;margin-left: 5px;">查看</i> </el-link></el-descriptions-item>
+        <el-descriptions-item label="LG_2W01_R014现场测评授权书"> <el-link type="primary" :underline="false">表单最新逻辑.xlsx<i
+              class="el-icon-view el-icon--right" style="color: #303133;margin-left: 5px;">查看</i> </el-link>
+        </el-descriptions-item>
+        <el-descriptions-item label="LG_2W01_R019验证测试授权书"><el-link type="primary"
+            :underline="false">file_gd_LG-SYS-02308_R013_xlsx.data<i class="el-icon-view el-icon--right"
+              style="color: #303133;margin-left: 5px;">查看</i> </el-link></el-descriptions-item>
+        <el-descriptions-item label="LG_2W01_R015自愿放弃验证测试声明"><el-link type="primary"
+            :underline="false">file_gd_LG-SYS-02308_R013_xlsx.data<i class="el-icon-view el-icon--right"
+              style="color: #303133;margin-left: 5px;">查看</i> </el-link></el-descriptions-item>
 
 
       </el-descriptions>
       <div style="margin-top: 20px;">
 
- 
-      <el-form ref="form" :rules="rules" :model="form" label-width="auto">
-        <el-form-item label="审批结果" prop="resource">
-          <el-radio-group v-model="form.resource" >
-            <el-radio label="1">通过</el-radio>
-            <el-radio label="2">未通过</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="不通过理由" prop="desc" v-if="form.resource==2">
-          <el-input type="textarea" v-model="form.desc"></el-input>
-        </el-form-item>
-        <el-form-item style="text-align: center;">
-          <el-button type="primary" @click="onSubmit">提交</el-button>
-          <el-button  @click="handleClose">取消</el-button>
-        </el-form-item>
-      </el-form>
-    </div>
+
+        <el-form ref="form" :rules="rules" :model="form" label-width="auto">
+          <el-form-item label="审批结果" prop="resource">
+            <el-radio-group v-model="form.resource">
+              <el-radio label="1">通过</el-radio>
+              <el-radio label="2">未通过</el-radio>
+            </el-radio-group>
+          </el-form-item>
+          <el-form-item label="不通过理由" prop="desc" v-if="form.resource == 2">
+            <el-input type="textarea" v-model="form.desc"></el-input>
+          </el-form-item>
+          <el-form-item style="text-align: center;">
+            <el-button type="primary" @click="onSubmit">提交</el-button>
+            <el-button @click="handleClose">取消</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
       <!-- <span slot="footer" class="dialog-footer">
         <el-button @click="dialogVisible = false">取 消</el-button>
         <el-button type="primary" @click="dialogVisible = false">确 定</el-button>
@@ -149,22 +157,23 @@ export default {
         pageNum: 1,
         pageSize: 10,
         ProjectID: '',
-        SystemID: 'LG-SYS-00120',
+        // SystemID: 'LG-SYS-00120',
+         SystemID: '',
         SystemName: ''
       },
-      form:{
-        resource:'',
-        desc:''
+      form: {
+        resource: '',
+        desc: ''
       },
       rules: {
-       
-          resource: [
-            { required: true, message: '请选择审核结果', trigger: 'change' }
-          ],
-          desc: [
-            { required: true, message: '请填写不通过理由', trigger: 'blur' }
-          ]
-        }
+
+        resource: [
+          { required: true, message: '请选择审核结果', trigger: 'change' }
+        ],
+        desc: [
+          { required: true, message: '请填写不通过理由', trigger: 'blur' }
+        ]
+      }
 
 
 
@@ -182,8 +191,9 @@ export default {
         //   showothersys: this.form.showothersys,
         //   ProjectID: this.queryParams.ProjectID,
         //   SystemID: this.queryParams.SystemID,
-        //   SystemName: this.queryParams.SystemName
-        SystemID: this.queryParams.SystemID,
+           SystemID: this.queryParams.SystemID,
+          SystemName: this.queryParams.SystemName,
+     
         voidid: 806
 
       }
@@ -191,7 +201,11 @@ export default {
       initList(formData).then(res => {
         if (res.Data) {
           this.originalTableData = res.Data;
-          this.total = this.originalTableData.length;
+          if (this.originalTableData.length > 0) {
+            this.total = this.originalTableData[0].记录总数;
+          } else {
+            this.total = 0
+          }
 
           this.setCurrentTableData();
         } else {
@@ -219,7 +233,14 @@ export default {
     /** 重置按钮操作 */
     resetQuery() {
       this.queryParams.pageNum = 1;
-      this.resetForm("queryForm");
+      // this.resetForm("queryForm");
+      this.queryParams={
+          pageNum: 1,
+        pageSize: 10,
+        ProjectID: '',
+         SystemID: '',
+        SystemName: ''
+      }
       this.getList();
     },
     // 多选框选中数据
@@ -243,11 +264,11 @@ export default {
     handleClick(row) {
       console.log(row)
       this.title = '归档文件审核'
-      this.form={
-        resource:'',
-        desc:''
+      this.form = {
+        resource: '',
+        desc: ''
       }
-      
+
       this.dialogVisible = true
       // this.$router.push({
       //   name: 'Addrecord'
@@ -280,41 +301,50 @@ export default {
 
       return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
     },
-    onSubmit(){
+    onSubmit() {
 
       this.$refs.form.validate((valid) => {
-          if (valid) {
-            this.$confirm('请确认您的审核结果, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(() => {
-          // this.$message({
-          //   type: 'success',
-          //   message: '删除成功!'
-          // });
-          this.$refs.form.resetFields();
-          this.dialogVisible=false
-        }).catch(() => {
-          // this.$message({
-          //   type: 'info',
-          //   message: '已取消删除'
-          // });          
-        })
-          } else {
-            console.log('error submit!!');
-            return false;
-          }
-        });
+        if (valid) {
+          this.$confirm('请确认您的审核结果, 是否继续?', '提示', {
+            confirmButtonText: '确定',
+            cancelButtonText: '取消',
+            type: 'warning'
+          }).then(() => {
+            // this.$message({
+            //   type: 'success',
+            //   message: '删除成功!'
+            // });
+            this.$refs.form.resetFields();
+            this.dialogVisible = false
+          }).catch(() => {
+            // this.$message({
+            //   type: 'info',
+            //   message: '已取消删除'
+            // });          
+          })
+        } else {
+          console.log('error submit!!');
+          return false;
+        }
+      });
 
-        return
- 
+      return
+
     }
   }
 };
 </script>
 
 <style scoped>
+::v-deep .el-table__body-wrapper {
+  overflow-x: auto;
+}
+
+::v-deep .el-table__body-wrapper::-webkit-scrollbar {
+  height: 12px;
+  /* 调整横向滚动条高度 */
+}
+
 .box-card {
   margin-bottom: 20px;
 }

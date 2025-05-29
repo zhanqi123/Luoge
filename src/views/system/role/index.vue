@@ -101,13 +101,13 @@
 </template>
 
 <script>
-import { listRole, getRole, delRole, addRole, updateRole, dataScope, changeRoleStatus, deptTreeSelect } from "@/api/system/role";
-import { treeselect as menuTreeselect, roleMenuTreeselect } from "@/api/system/menu";
+import {  getRole, delRole, } from "@/api/system/role";
+import { treeselect as menuTreeselect } from "@/api/system/menu";
 import { initList } from '@/api/record.js'
 
 export default {
   name: "Role",
-  dicts: ['sys_normal_disable'],
+  // dicts: ['sys_normal_disable'],
   data() {
     return {
       // 遮罩层
@@ -203,6 +203,8 @@ export default {
           this.roleList = res.Data
 
           this.loading = false;
+        } else {
+          this.$modal.msgError(res.ErrorInfo);
         }
       })
 
@@ -294,17 +296,23 @@ export default {
         RoleID: row.角色ID,
         voidid: 840
       }
+      this.loading = true;
       initList(data).then(res => {
-        let dataArr = res.Data[0].
-          可访问菜单.replace(/'/g, '"')
-        this.checkedMenuIds = this.collectMenuIds(JSON.parse(dataArr))
-        this.form.RoleID = row.角色ID;
-        this.openDataScope = true;
-        this.title = "分配菜单权限";
-        this.$nextTick(() => {
-          this.setCheckedMenuIds();
-        });
+        if (res.Data) {
+          let dataArr = res.Data[0].
+            可访问菜单.replace(/'/g, '"')
+          this.checkedMenuIds = this.collectMenuIds(JSON.parse(dataArr))
+          this.form.RoleID = row.角色ID;
+          this.openDataScope = true;
+          this.title = "分配菜单权限";
+          this.$nextTick(() => {
+            this.setCheckedMenuIds();
+          });
+        } else {
+          this.$modal.msgError(res.ErrorInfo);
+        }
 
+        this.loading = false;
 
         return
         if (res.Data) {
@@ -358,6 +366,8 @@ export default {
           this.$message.success('提交成功')
           this.openDataScope = false
 
+        }else {
+          this.$modal.msgError(res.ErrorInfo);
         }
       })
 

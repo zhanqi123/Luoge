@@ -46,6 +46,7 @@ module.exports = {
       // },
       '/RequestInterface.aspx': {
         target: 'http://192.168.16.26:86',
+        // target: 'http://gd.hbluoge.com',
         changeOrigin: true,
         pathRewrite: {
           '^/RequestInterface.aspx': '/RequestInterface.aspx'
@@ -53,6 +54,7 @@ module.exports = {
       },
       '/LocalRequestInterface.aspx': {
         target: 'http://192.168.16.26:86',
+        // target: 'http://gd.hbluoge.com',
         changeOrigin: true,
         pathRewrite: {
           '^/LocalRequestInterface.aspx': '/LocalRequestInterface.aspx'

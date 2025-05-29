@@ -46,7 +46,7 @@
         <el-table-column
     
        
-        label="年份：2024"
+        label="项目名称：20241221323213"
         align="center"
      
       >
@@ -75,7 +75,7 @@
 
       </el-table>
       <el-table  :data="tableData1">
-        <el-table-column label="年份：2023" align="center">
+        <el-table-column label="项目名称：20241221323213" align="center">
             <el-table-column label="序号" align="center" prop="A" width="100" />
             <el-table-column label="系统名称" align="center" prop="b"  />
             <el-table-column label="系统编号" align="center" prop="c"  />
@@ -101,7 +101,7 @@
 
       </el-table>
       <el-table  :data="tableData1">
-        <el-table-column label="年份：2022" align="center">
+        <el-table-column  label="项目名称：20241221323213"align="center">
             <el-table-column label="序号" align="center" prop="A" width="100" />
             <el-table-column label="系统名称" align="center" prop="b"  />
             <el-table-column label="系统编号" align="center" prop="c"  />
